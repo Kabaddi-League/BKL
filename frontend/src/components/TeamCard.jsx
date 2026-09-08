@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const TeamCard = ({ team, isLeading = false, onSelect }) => {
+export const TeamCard = ({ team, isLeading = false, hideBudget = false, onSelect }) => {
   if (!team) return null;
 
   const initialBudget = team.initialBudget || 50000;
@@ -30,17 +30,29 @@ export const TeamCard = ({ team, isLeading = false, onSelect }) => {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-        <div>
-          <h3 style={{
-            fontSize: '1.35rem',
-            color: isLeading ? 'var(--bkl-gold)' : '#fff',
-            fontFamily: 'var(--bkl-font-display)',
-            margin: 0
-          }}>
-            {team.name}
-          </h3>
-          <div style={{ fontSize: '0.85rem', color: 'var(--bkl-text-muted)', marginTop: '0.1rem' }}>
-            Captain: <span style={{ color: '#fff', fontWeight: 600 }}>{team.captain ? team.captain.fullName : 'Unassigned'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img 
+            src={team.logoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${team.name}&backgroundColor=0f172a,dc2626&textColor=ffffff`}
+            alt={team.name}
+            style={{ width: '45px', height: '45px', borderRadius: '50%', objectFit: 'cover', border: isLeading ? '2px solid var(--bkl-gold)' : '2px solid var(--bkl-dark-border)' }}
+          />
+          <div>
+            <h3 style={{
+              fontSize: '1.35rem',
+              color: isLeading ? 'var(--bkl-gold)' : '#fff',
+              fontFamily: 'var(--bkl-font-display)',
+              margin: 0
+            }}>
+              {team.name}
+            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--bkl-text-muted)', marginTop: '0.1rem' }}>
+              <img 
+                src={team.captain?.profileImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${team.captain?.fullName || 'Unassigned'}`}
+                alt="Captain"
+                style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <span style={{ color: '#fff', fontWeight: 600 }}>{team.captain ? team.captain.fullName : 'Unassigned'}</span>
+            </div>
           </div>
         </div>
 
@@ -61,7 +73,8 @@ export const TeamCard = ({ team, isLeading = false, onSelect }) => {
       </div>
 
       {/* Budget Progress Bar */}
-      <div style={{ marginTop: '0.75rem' }}>
+      {!hideBudget && (
+        <div style={{ marginTop: '0.75rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
           <span style={{ color: 'var(--bkl-text-muted)' }}>REMAINING BUDGET</span>
           <span style={{ color: budgetColor, fontWeight: 700, fontFamily: 'var(--bkl-font-display)', fontSize: '1.1rem' }}>
@@ -90,6 +103,7 @@ export const TeamCard = ({ team, isLeading = false, onSelect }) => {
           <span style={{ color: budgetColor, fontWeight: 700 }}>STATUS: {budgetStatus}</span>
         </div>
       </div>
+      )}
     </div>
   );
 };

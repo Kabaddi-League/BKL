@@ -8,7 +8,18 @@ import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"captain"})
+    java.util.List<Team> findAll();
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"captain"})
+    Optional<Team> findById(Long id);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"captain"})
     Optional<Team> findByNameIgnoreCase(String name);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"captain"})
     Optional<Team> findByCaptain(User captain);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"captain"})
     Optional<Team> findByCaptainId(Long captainId);
 }

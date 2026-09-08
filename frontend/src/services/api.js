@@ -21,6 +21,17 @@ export const api = {
     return data;
   },
 
+  registerViewer: async (email, password, fullName) => {
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, fullName })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Registration failed');
+    return data;
+  },
+
   changePassword: async (currentPassword, newPassword) => {
     const res = await fetch(`${API_BASE_URL}/auth/change-password`, {
       method: 'POST',
@@ -56,7 +67,7 @@ export const api = {
     return await res.json();
   },
 
-  uploadPlayerPhoto: async (playerId, file) => {
+  uploadUserPhoto: async (file) => {
     if (file.size > 1024 * 1024) {
       throw new Error("Profile image must be 1 MB or smaller.");
     }
@@ -64,7 +75,7 @@ export const api = {
     formData.append('file', file);
 
     const token = localStorage.getItem('bkl_token');
-    const res = await fetch(`${API_BASE_URL}/players/${playerId}/photo`, {
+    const res = await fetch(`${API_BASE_URL}/auth/me/photo`, {
       method: 'POST',
       headers: {
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})

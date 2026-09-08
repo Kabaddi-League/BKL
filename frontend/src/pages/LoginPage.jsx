@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { api } from '../services/api';
 
 export const LoginPage = ({ onLoginSuccess }) => {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showDemoAccounts, setShowDemoAccounts] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,20 +15,20 @@ export const LoginPage = ({ onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const data = await api.login(email.trim(), password);
+      let data;
+      if (isRegistering) {
+        data = await api.registerViewer(email.trim(), password, fullName.trim());
+      } else {
+        data = await api.login(email.trim(), password);
+      }
       localStorage.setItem('bkl_token', data.token);
       localStorage.setItem('bkl_user', JSON.stringify(data));
       onLoginSuccess(data);
     } catch (err) {
-      setError(err.message || 'Login failed.');
+      setError(err.message || (isRegistering ? 'Registration failed.' : 'Login failed.'));
     } finally {
       setLoading(false);
     }
-  };
-
-  const setCredentials = (accEmail) => {
-    setEmail(accEmail);
-    setPassword(accEmail);
   };
 
   return (
@@ -63,7 +64,7 @@ export const LoginPage = ({ onLoginSuccess }) => {
             BKL
           </div>
           <h2 style={{ fontSize: '2.2rem', color: '#fff', margin: 0, fontFamily: 'var(--bkl-font-display)' }}>
-            WELCOME BACK
+            {isRegistering ? 'VIEWER REGISTRATION' : 'WELCOME BACK'}
           </h2>
           <p style={{ color: 'var(--bkl-text-muted)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
             Bacchha Kabaddi League Auction Portal
@@ -85,6 +86,31 @@ export const LoginPage = ({ onLoginSuccess }) => {
         )}
 
         <form onSubmit={handleSubmit}>
+          {isRegistering && (
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--bkl-text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', fontWeight: 600 }}>
+                FULL NAME
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g. Rahul Kumar"
+                required={isRegistering}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  background: 'rgba(0,0,0,0.4)',
+                  border: '1px solid var(--bkl-dark-border)',
+                  borderRadius: '4px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  outline: 'none'
+                }}
+              />
+            </div>
+          )}
+
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--bkl-text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase', fontWeight: 600 }}>
               EMAIL / LOGIN ID
@@ -116,7 +142,7 @@ export const LoginPage = ({ onLoginSuccess }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={isRegistering ? "Min. 6 characters" : "••••••••"}
               required
               style={{
                 width: '100%',
@@ -137,31 +163,25 @@ export const LoginPage = ({ onLoginSuccess }) => {
             disabled={loading}
             style={{ width: '100%', padding: '0.75rem', fontSize: '1.3rem' }}
           >
-            {loading ? 'LOGGING IN...' : 'LOGIN TO PLATFORM'}
+            {loading ? 'PROCESSING...' : isRegistering ? 'REGISTER & ENTER' : 'LOGIN TO PLATFORM'}
           </button>
+
         </form>
 
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <button
-            type="button"
-            onClick={() => setShowDemoAccounts(!showDemoAccounts)}
-            style={{ background: 'none', border: 'none', color: 'var(--bkl-gold)', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            {showDemoAccounts ? 'Hide Quick Login Accounts' : 'View Quick Login Credentials'}
-          </button>
-
-          {showDemoAccounts && (
-            <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.5)', padding: '0.75rem', borderRadius: '4px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--bkl-text-muted)' }}>
-              <div style={{ color: 'var(--bkl-gold)', fontWeight: 700, marginBottom: '0.4rem' }}>CLICK TO FILL (Password = Email):</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                <a href="#!" onClick={() => setCredentials('mrigankharsh@gmail.com')} style={{ color: '#ff6b6b' }}>👑 Admin: mrigankharsh@gmail.com</a>
-                <a href="#!" onClick={() => setCredentials('harshitkumar4840@gmail.com')} style={{ color: '#ff6b6b' }}>👑 Admin: harshitkumar4840@gmail.com</a>
-                <a href="#!" onClick={() => setCredentials('shaktipipra@gmail.com')} style={{ color: '#f5b014' }}>⚔️ Captain (Chain Breakers): shaktipipra@gmail.com</a>
-                <a href="#!" onClick={() => setCredentials('kaushiktejas713@gmail.com')} style={{ color: '#f5b014' }}>⚔️ Captain (Iron Lobby): kaushiktejas713@gmail.com</a>
-                <a href="#!" onClick={() => setCredentials('singh171761@gmail.com')} style={{ color: '#fff' }}>🏃 Player: singh171761@gmail.com</a>
-              </div>
-            </div>
-          )}
+          <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.9rem' }}>
+            {isRegistering ? "Already have an account?" : "Don't have an account?"}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setError('');
+              }}
+              style={{ background: 'none', border: 'none', color: 'var(--bkl-gold)', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline', fontWeight: 700 }}
+            >
+              {isRegistering ? "Login Here" : "Register as Viewer"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

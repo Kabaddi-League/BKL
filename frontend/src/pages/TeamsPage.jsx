@@ -53,12 +53,29 @@ export const TeamsPage = () => {
         <div>
           <div className="bkl-card bkl-card-3d" style={{ marginBottom: '2rem', borderLeft: '4px solid var(--bkl-gold)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-              <div>
-                <h2 style={{ fontSize: '2.2rem', color: '#fff', margin: 0, fontFamily: 'var(--bkl-font-display)' }}>
-                  {squadData.team.name}
-                </h2>
-                <div style={{ color: 'var(--bkl-text-muted)', fontSize: '1rem', marginTop: '0.2rem' }}>
-                  Captain: <strong style={{ color: 'var(--bkl-gold)' }}>{squadData.team.captain?.fullName || 'Unassigned'}</strong>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                {/* Team Logo */}
+                <img 
+                  src={squadData.team.logoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${squadData.team.name}&backgroundColor=0f172a,dc2626&textColor=ffffff`} 
+                  alt={squadData.team.name}
+                  style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--bkl-gold)' }}
+                />
+                
+                <div>
+                  <h2 style={{ fontSize: '2.2rem', color: '#fff', margin: 0, fontFamily: 'var(--bkl-font-display)' }}>
+                    {squadData.team.name}
+                  </h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
+                    <div style={{ color: 'var(--bkl-text-muted)', fontSize: '1rem' }}>Captain:</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.25rem 0.75rem 0.25rem 0.25rem', borderRadius: '50px', border: '1px solid var(--bkl-dark-border)' }}>
+                      <img 
+                        src={squadData.team.captain?.profileImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${squadData.team.captain?.fullName || 'Unassigned'}`}
+                        alt="Captain"
+                        style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
+                      />
+                      <strong style={{ color: 'var(--bkl-gold)' }}>{squadData.team.captain?.fullName || 'Unassigned'}</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
 

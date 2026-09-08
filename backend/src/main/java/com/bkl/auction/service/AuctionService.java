@@ -303,7 +303,7 @@ public class AuctionService {
 
     @Transactional
     public synchronized Map<String, Object> nextPlayer(User auctioneer) {
-        List<Player> availablePlayers = playerRepository.findByAuctionStatus(AuctionStatus.AVAILABLE);
+        List<Player> availablePlayers = playerRepository.findByAuctionStatusOrderByAuctionOrderAscIdAsc(AuctionStatus.AVAILABLE);
         if (availablePlayers.isEmpty()) {
             Auction auction = getActiveAuction();
             auction.setState(AuctionState.COMPLETED);
@@ -356,7 +356,7 @@ public class AuctionService {
         map.put("bids", recentBids);
 
         // Upcoming players queue
-        List<Player> availableQueue = playerRepository.findByAuctionStatus(AuctionStatus.AVAILABLE);
+        List<Player> availableQueue = playerRepository.findByAuctionStatusOrderByAuctionOrderAscIdAsc(AuctionStatus.AVAILABLE);
         map.put("queue", availableQueue.stream().limit(5).toList());
 
         return map;

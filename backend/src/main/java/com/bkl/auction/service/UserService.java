@@ -131,4 +131,20 @@ public class UserService {
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
+
+    @Transactional
+    public LoginResponse registerViewer(com.bkl.auction.dto.SignupRequest request) {
+        if (userRepository.findByEmailIgnoreCase(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email is already registered.");
+        }
+        User user = new User(request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getFullName(), "", "Guest", Role.VIEWER);
+        user.setMustChangePassword(false);
+        user = userRepository.save(user);
+        auditService.logAction(user, "VIEWER_REGISTERED", user.getEmail(), null);
+        
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(request.getEmail());
+        loginRequest.setPassword(request.getPassword());
+        return login(loginRequest);
+    }
 }

@@ -11,11 +11,10 @@ export const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, conf
       right: 0,
       bottom: 0,
       backgroundColor: 'rgba(0,0,0,0.85)',
-      backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 2000,
+      zIndex: 9999,
       padding: '1rem'
     }}>
       <div className="bkl-card bkl-card-3d animate-pop-in" style={{

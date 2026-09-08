@@ -44,6 +44,19 @@ public class DataSeeder implements CommandLineRunner {
         try {
             if (userRepository.count() > 0) {
                 log.info("Database already contains data. Skipping initial seeding.");
+                
+                // Disable password scheme for all existing users
+                List<User> allUsers = userRepository.findAll();
+                boolean updated = false;
+                for (User u : allUsers) {
+                    if (u.isMustChangePassword()) {
+                        u.setMustChangePassword(false);
+                        userRepository.save(u);
+                        updated = true;
+                    }
+                }
+                if (updated) log.info("Disabled forced password change for existing users.");
+
                 ensureInitialAuctionState();
                 return;
             }
@@ -51,19 +64,19 @@ public class DataSeeder implements CommandLineRunner {
             log.warn("Could not check user count directly, proceeding with seeding: {}", e.getMessage());
         }
 
-        log.info("Starting BKL Data Seeding...");
+        log.info("Starting BKL Data Seeding from CSV...");
 
         // 1. Seed Admin Accounts
-        User admin1 = createOrGetUser("mrigankharsh@gmail.com", "mrigankharsh@gmail.com", "Harsh Mrigank", "9308354518", "4th", Role.SUPER_ADMIN);
+        User admin1 = createOrGetUser("harshmrigank@gmail.com", "harshmrigank@gmail.com", "Harsh Mrigank", "9308354518", "4th", Role.SUPER_ADMIN);
         User admin2 = createOrGetUser("harshitkumar4840@gmail.com", "harshitkumar4840@gmail.com", "Harshit Kumar", "9800000000", "4th", Role.AUCTIONEER);
 
-        // 2. Define Pool Email Sets
+        // Define Pool Email Sets
         Set<String> poolAEmails = new HashSet<>(Arrays.asList(
                 "singh171761@gmail.com",      // Shivam Kumar
                 "angshujha2005@gmail.com",    // Angshu Jha
                 "dimpu108111@gmail.com",      // Siddharth Kumar
                 "mayankraj02012006@gmail.com",// Mayank
-                "mrigankharsh@gmail.com"      // Harsh Mrigank
+                "mrigankharsh@gmail.com"      // Harsh Mrigank (Player)
         ));
 
         Set<String> poolBEmails = new HashSet<>(Arrays.asList(
@@ -86,9 +99,10 @@ public class DataSeeder implements CommandLineRunner {
                 "harshitchauhan00001@gmail.com"  // Harshit Thala
         ));
 
-        // 3. Read CSV and seed Users & Players
+        // Read CSV and seed Users & Players
         ClassPathResource resource = new ClassPathResource("registration_data.csv");
-        int orderCounter = 1;
+        
+        List<Player> playersToSave = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
@@ -101,11 +115,12 @@ public class DataSeeder implements CommandLineRunner {
                 String[] parts = line.split(",", -1);
                 if (parts.length < 6) continue;
 
-                String email = parts[1].trim().toLowerCase();
-                String rawName = parts[2].trim();
-                String mobile = parts[3].trim().replaceAll("\\s+", "");
-                String rawYear = parts[4].trim();
-                String rawType = parts[5].trim();
+                // Strip quotes and trim
+                String email = parts[1].replaceAll("\"", "").trim().toLowerCase();
+                String rawName = parts[2].replaceAll("\"", "").trim();
+                String mobile = parts[3].replaceAll("\"", "").trim().replaceAll("\\s+", "");
+                String rawYear = parts[4].replaceAll("\"", "").trim();
+                String rawType = parts[5].replaceAll("\"", "").trim();
 
                 String normalizedYear = normalizeYear(rawYear);
                 PlayerType playerType = PlayerType.fromString(rawType);
@@ -113,22 +128,21 @@ public class DataSeeder implements CommandLineRunner {
                 Role role = Role.PLAYER;
                 if (captainEmails.contains(email)) {
                     role = Role.CAPTAIN;
-                } else if (email.equals("mrigankharsh@gmail.com")) {
+                } else if (email.equals("harshmrigank@gmail.com")) {
                     role = Role.SUPER_ADMIN;
                 }
 
+                // Create user with MOBILE number as password
                 User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
                 if (user == null) {
-                    user = new User(email, passwordEncoder.encode(email), rawName, mobile, normalizedYear, role);
-                    user.setMustChangePassword(true);
+                    user = new User(email, passwordEncoder.encode(mobile), rawName, mobile, normalizedYear, role);
+                    user.setMustChangePassword(false);
                     user = userRepository.save(user);
                 }
 
-                // Skip seeding player for SUPER_ADMIN or AUCTIONEER if they aren't playing, 
-                // but Harsh Mrigank is playing (in Pool A), so we include him.
                 // Captains don't go to auction pool
                 if (captainEmails.contains(email)) {
-                    continue; // Captains are assigned directly to teams, not in auction pool
+                    continue;
                 }
 
                 // Determine Pool
@@ -142,12 +156,22 @@ public class DataSeeder implements CommandLineRunner {
                 }
 
                 Player player = new Player(user, playerType, pool, pool.getBasePrice());
-                player.setAuctionOrder(orderCounter++);
-                playerRepository.save(player);
+                playersToSave.add(player);
             }
         }
+        
+        // Sort players: Pool A -> B -> C, then Alphabetical by Name
+        playersToSave.sort(Comparator.comparing((Player p) -> p.getPool().name())
+                .thenComparing(p -> p.getUser().getFullName().toLowerCase()));
+                
+        // Assign auction order and save
+        int orderCounter = 1;
+        for (Player p : playersToSave) {
+            p.setAuctionOrder(orderCounter++);
+            playerRepository.save(p);
+        }
 
-        // 4. Seed 5 Teams & Map Captains
+        // Seed 5 Teams & Map Captains
         Map<String, String> teamCaptainMap = new LinkedHashMap<>();
         teamCaptainMap.put("Iron Lobby", "shaktipipra@gmail.com");
         teamCaptainMap.put("Velocity", "kaushiktejas713@gmail.com");
@@ -167,9 +191,7 @@ public class DataSeeder implements CommandLineRunner {
             }
         }
 
-        // 5. Initialize Auction State
         ensureInitialAuctionState();
-
         log.info("Data Seeding Completed Successfully. Total Users: {}", userRepository.count());
     }
 

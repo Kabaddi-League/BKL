@@ -63,7 +63,11 @@ export function App() {
   // Render Page Content based on Route & Role Guards
   const renderContent = () => {
     if (user && user.mustChangePassword && currentPath !== '/change-password') {
-      return <ChangePasswordPage onPasswordChanged={() => setUser(prev => ({ ...prev, mustChangePassword: false }))} />;
+      return <ChangePasswordPage onPasswordChanged={() => {
+          const updatedUser = { ...user, mustChangePassword: false };
+          setUser(updatedUser);
+          localStorage.setItem('bkl_user', JSON.stringify(updatedUser));
+      }} />;
     }
 
     switch (currentPath) {
@@ -72,7 +76,15 @@ export function App() {
       case '/login':
         return <LoginPage onLoginSuccess={handleLoginSuccess} />;
       case '/change-password':
-        return <ChangePasswordPage onPasswordChanged={() => { window.location.hash = '#/auction'; }} />;
+        return <ChangePasswordPage onPasswordChanged={() => {
+          const updatedUser = { ...user, mustChangePassword: false };
+          setUser(updatedUser);
+          localStorage.setItem('bkl_user', JSON.stringify(updatedUser));
+          
+          if (updatedUser.role === 'CAPTAIN') window.location.hash = '#/captain/auction';
+          else if (updatedUser.role === 'SUPER_ADMIN' || updatedUser.role === 'AUCTIONEER') window.location.hash = '#/admin';
+          else window.location.hash = '#/auction';
+        }} />;
       case '/auction':
       case '/live':
         return <LiveAuctionArena user={user} />;
@@ -111,6 +123,28 @@ export function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar user={user} onLogout={handleLogout} currentPath={currentPath} />
+      
+      {/* Missing Profile Picture Notification */}
+      {user && (user.role === 'CAPTAIN' || user.role === 'PLAYER') && !user.profileImageUrl && !user.mustChangePassword && currentPath !== '/profile' && (
+        <div style={{
+          background: 'rgba(230, 43, 43, 0.15)',
+          borderBottom: '1px solid var(--bkl-red)',
+          padding: '0.75rem 1rem',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ color: '#fff', fontSize: '0.95rem' }}>
+            ⚠️ <strong>ACTION REQUIRED:</strong> You have not uploaded a profile picture yet. You must upload one for the auction broadcast.
+          </span>
+          <a href="#/profile" className="bkl-btn bkl-btn-primary" style={{ padding: '0.3rem 0.8rem', fontSize: '0.85rem' }}>
+            UPLOAD NOW
+          </a>
+        </div>
+      )}
+
       <main style={{ flex: 1 }}>
         {renderContent()}
       </main>

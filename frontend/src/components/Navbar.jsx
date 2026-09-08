@@ -4,7 +4,6 @@ export const Navbar = ({ user, onLogout, currentPath = '/' }) => {
   return (
     <header style={{
       background: 'rgba(8, 9, 12, 0.95)',
-      backdropFilter: 'blur(16px)',
       borderBottom: '1px solid var(--bkl-dark-border)',
       position: 'sticky',
       top: 0,

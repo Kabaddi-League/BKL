@@ -160,7 +160,6 @@ h1, h2, h3, .font-display {
 /* Glass Card */
 .bkl-card {
   background: var(--bkl-glass);
-  backdrop-filter: blur(12px);
   border: 1px solid var(--bkl-dark-border);
   border-radius: 8px;
   padding: 1.25rem;

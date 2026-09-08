@@ -242,6 +242,7 @@ export const LiveAuctionArena = ({ user }) => {
               key={t.id} 
               team={t} 
               isLeading={leadingTeam && leadingTeam.id === t.id} 
+              hideBudget={!user}
             />
           ))}
         </div>

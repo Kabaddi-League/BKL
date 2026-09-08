@@ -83,7 +83,7 @@ export const ChangePasswordPage = ({ onPasswordChanged }) => {
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Your email address"
+              placeholder="Your current password"
               style={{ width: '100%', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--bkl-dark-border)', borderRadius: '4px', color: '#fff' }}
             />
           </div>

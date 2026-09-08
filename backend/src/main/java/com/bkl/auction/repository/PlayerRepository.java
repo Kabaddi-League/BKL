@@ -11,10 +11,27 @@ import java.util.Optional;
 
 @Repository
 public interface PlayerRepository extends JpaRepository<Player, Long> {
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
+    List<Player> findAll();
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
+    Optional<Player> findById(Long id);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     Optional<Player> findByUser(User user);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     Optional<Player> findByUserId(Long userId);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     List<Player> findByPool(Pool pool);
-    List<Player> findByAuctionStatus(AuctionStatus status);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
+    List<Player> findByAuctionStatusOrderByAuctionOrderAscIdAsc(AuctionStatus status);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     List<Player> findByCurrentTeamId(Long teamId);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     List<Player> findAllByOrderByAuctionOrderAscIdAsc();
 }

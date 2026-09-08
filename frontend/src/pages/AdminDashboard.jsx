@@ -34,18 +34,41 @@ export const AdminDashboard = () => {
 
   const loadData = async () => {
     try {
-      const s = await api.getDashboardStats(); setStats(s);
-      const p = await api.getPlayers({ pool: filterPool, type: filterType, status: filterStatus, search: searchQuery }); setPlayers(p);
-      const t = await api.getTeams(); setTeams(t);
-      const u = await api.getUsers(); setUsers(u);
-      const a = await api.getAuditLogs(); setAuditLogs(a);
+      const [s, t, u, a] = await Promise.all([
+        api.getDashboardStats(),
+        api.getTeams(),
+        api.getUsers(),
+        api.getAuditLogs()
+      ]);
+      setStats(s);
+      setTeams(t);
+      setUsers(u);
+      setAuditLogs(a);
     } catch (err) {
       console.error('Failed to load admin data:', err);
     }
   };
 
+  const loadPlayers = async () => {
+    try {
+      const p = await api.getPlayers({ pool: filterPool, type: filterType, status: filterStatus, search: searchQuery });
+      setPlayers(p);
+    } catch (err) {
+      console.error('Failed to load players:', err);
+    }
+  };
+
+  // Load static data once on mount or tab change
   useEffect(() => {
     loadData();
+  }, [activeTab]);
+
+  // Load players specifically when filters change
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      loadPlayers();
+    }, 300);
+    return () => clearTimeout(delay);
   }, [activeTab, filterPool, filterType, filterStatus, searchQuery]);
 
   const handleUpdatePlayer = async (e) => {

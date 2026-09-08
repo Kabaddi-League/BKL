@@ -37,7 +37,7 @@ export const PlayerProfilePage = ({ user, onUserUpdated }) => {
 
   const handlePhotoUpload = async (e) => {
     e.preventDefault();
-    if (!photoFile || !playerData) return;
+    if (!photoFile || !user) return;
     setMessage(''); setError('');
 
     if (photoFile.size > 1024 * 1024) {
@@ -47,7 +47,7 @@ export const PlayerProfilePage = ({ user, onUserUpdated }) => {
 
     setUploading(true);
     try {
-      const res = await api.uploadPlayerPhoto(playerData.id, photoFile);
+      const res = await api.uploadUserPhoto(photoFile);
       setMessage('Profile photo uploaded successfully!');
       if (onUserUpdated) onUserUpdated();
       setPhotoFile(null);
