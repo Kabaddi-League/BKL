@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Work+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bkl-black: #08090c;
+  --bkl-dark: #0f121a;
+  --bkl-dark-card: #161a26;
+  --bkl-dark-border: #282f45;
+  --bkl-red: #e62b2b;
+  --bkl-red-glow: rgba(230, 43, 43, 0.4);
+  --bkl-gold: #f5b014;
+  --bkl-gold-glow: rgba(245, 176, 20, 0.4);
+  --bkl-grey: #4a5168;
+  --bkl-grey-accent: #6b7280;
+  --bkl-orange: #ff7700;
+  --bkl-yellow: #ffd000;
+  --bkl-white: #ffffff;
+  --bkl-text: #f0f3fa;
+  --bkl-text-muted: #8c95ab;
+  --bkl-font-display: 'Teko', sans-serif;
+  --bkl-font-body: 'Work Sans', sans-serif;
+  --bkl-glass: rgba(22, 26, 38, 0.85);
+  --bkl-glass-border: rgba(255, 255, 255, 0.1);
+  --bkl-shadow-3d: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(230, 43, 43, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bkl-black);
+  color: var(--bkl-text);
+  font-family: var(--bkl-font-body);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(230, 43, 43, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(245, 176, 20, 0.08) 0%, transparent 50%),
+    linear-gradient(180deg, #08090c 0%, #0c0e14 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Typography */
+h1, h2, h3, .font-display {
+  font-family: var(--bkl-font-display);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Buttons */
+.bkl-btn {
+  font-family: var(--bkl-font-display);
+  font-size: 1.35rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0.6rem 1.6rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.bkl-btn-primary {
+  background: linear-gradient(135deg, var(--bkl-red) 0%, #b81d1d 100%);
+  color: var(--bkl-white);
+  box-shadow: 0 4px 15px var(--bkl-red-glow);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bkl-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--bkl-red-glow);
+  filter: brightness(1.1);
+}
+
+.bkl-btn-gold {
+  background: linear-gradient(135deg, var(--bkl-gold) 0%, #d4920b 100%);
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 4px 15px var(--bkl-gold-glow);
+}
+
+.bkl-btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--bkl-gold-glow);
+  filter: brightness(1.15);
+}
+
+.bkl-btn-secondary {
+  background: var(--bkl-dark-card);
+  color: var(--bkl-text);
+  border: 1px solid var(--bkl-dark-border);
+}
+
+.bkl-btn-secondary:hover {
+  background: #1f2536;
+  border-color: var(--bkl-gold);
+  color: var(--bkl-gold);
+}
+
+.bkl-btn-disabled {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Pool Badges */
+.pool-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 3px;
+  font-family: var(--bkl-font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.pool-badge-captain {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+  border: 1px solid #6b7280;
+}
+
+.pool-badge-pool-a {
+  background: rgba(230, 43, 43, 0.2);
+  color: #ff5252;
+  border: 1px solid var(--bkl-red);
+}
+
+.pool-badge-pool-b {
+  background: rgba(255, 119, 0, 0.2);
+  color: #ff9433;
+  border: 1px solid var(--bkl-orange);
+}
+
+.pool-badge-pool-c {
+  background: rgba(255, 208, 0, 0.2);
+  color: #ffe066;
+  border: 1px solid var(--bkl-yellow);
+}
+
+.pool-badge-unassigned {
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  border: 1px solid #64748b;
+}
+
+/* Glass Card */
+.bkl-card {
+  background: var(--bkl-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--bkl-dark-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.bkl-card-3d {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bkl-card-3d:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 176, 20, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 176, 20, 0.15);
+}
+
+/* Circular Player Avatar */
+.player-avatar-container {
+  position: relative;
+  border-radius: 50%;
+  padding: 6px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.5) 100%);
+  display: inline-block;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.player-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Active Highlight for Bidding */
+.leading-team-glow {
+  border: 2px solid var(--bkl-gold) !important;
+  box-shadow: 0 0 25px var(--bkl-gold-glow) !important;
+  background: linear-gradient(135deg, rgba(245, 176, 20, 0.15) 0%, rgba(22, 26, 38, 0.9) 100%) !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bkl-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bkl-dark-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bkl-gold);
+}
+
+/* Keyframe Animations */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 15px rgba(230, 43, 43, 0.4); }
+  50% { box-shadow: 0 0 35px rgba(230, 43, 43, 0.8); }
+  100% { box-shadow: 0 0 15px rgba(230, 43, 43, 0.4); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop-in {
+  animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
