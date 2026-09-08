@@ -5,7 +5,8 @@ let stompClient = null;
 let isConnected = false;
 
 export const initWebSocket = (onAuctionUpdate, onTimerTick, onConnectionChange) => {
-  const socket = new SockJS('http://localhost:8080/ws-auction');
+  const serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const socket = new SockJS(`${serverUrl}/ws-auction`);
   stompClient = new Client({
     webSocketFactory: () => socket,
     reconnectDelay: 3000,

@@ -14,7 +14,8 @@ export const PlayerAvatar = ({ src, name, size = 120, borderGlow = 'none' }) => 
     return n.slice(0, 2).toUpperCase();
   };
 
-  const fullSrc = src && src.startsWith('/') ? `http://localhost:8080${src}` : src;
+  const serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const fullSrc = src && src.startsWith('/') ? `${serverUrl}${src}` : src;
 
   return (
     <div 
