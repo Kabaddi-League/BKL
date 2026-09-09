@@ -42,7 +42,11 @@ public class DataSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         try {
-            if (userRepository.count() > 0) {
+            // ALWAYS ensure Admin accounts exist regardless of DB wipe status
+            User admin1 = createOrGetUser("harshmrigank@gmail.com", "harshmrigank@gmail.com", "Harsh Mrigank", "9308354518", "4th", Role.SUPER_ADMIN);
+            User admin2 = createOrGetUser("harshitkumar4840@gmail.com", "harshitkumar4840@gmail.com", "Harshit Kumar", "9800000000", "4th", Role.AUCTIONEER);
+
+            if (userRepository.count() > 2) {
                 log.info("Database already contains data. Skipping initial seeding.");
                 
                 // Disable password scheme for all existing users
@@ -65,10 +69,6 @@ public class DataSeeder implements CommandLineRunner {
         }
 
         log.info("Starting BKL Data Seeding from CSV...");
-
-        // 1. Seed Admin Accounts
-        User admin1 = createOrGetUser("harshmrigank@gmail.com", "harshmrigank@gmail.com", "Harsh Mrigank", "9308354518", "4th", Role.SUPER_ADMIN);
-        User admin2 = createOrGetUser("harshitkumar4840@gmail.com", "harshitkumar4840@gmail.com", "Harshit Kumar", "9800000000", "4th", Role.AUCTIONEER);
 
         // Define Pool Email Sets
         Set<String> poolAEmails = new HashSet<>(Arrays.asList(
