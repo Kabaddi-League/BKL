@@ -6,7 +6,7 @@ import { PlayerAvatar } from '../components/PlayerAvatar';
 import { PoolBadge } from '../components/PoolBadge';
 import { TeamCard } from '../components/TeamCard';
 import { BidHistory } from '../components/BidHistory';
-import { AuctionTimer } from '../components/AuctionTimer';
+
 import { ConfirmModal } from '../components/ConfirmModal';
 import { KeyboardShortcutsModal } from '../components/KeyboardShortcutsModal';
 
@@ -272,7 +272,7 @@ export const LiveAuctionArena = ({ user }) => {
               {stateStr === 'LIVE' ? '🔴 NOW ON AUCTION' : stateStr === 'PAUSED' ? '⏸️ AUCTION PAUSED' : stateStr}
             </span>
 
-            <AuctionTimer seconds={timerSeconds} active={timerActive} />
+            
           </div>
 
           {/* Central Circular Player Display */}
@@ -364,13 +364,26 @@ export const LiveAuctionArena = ({ user }) => {
                       🏆 YOUR TEAM IS CURRENTLY LEADING THE BID
                     </div>
                   ) : (
-                    <button
-                      onClick={() => handlePlaceBid(user.teamId, leadingTeam ? currentBid + 200 : (currentPlayer.basePrice || 400))}
-                      className="bkl-btn bkl-btn-gold"
-                      style={{ width: '100%', fontSize: '1.8rem', padding: '0.85rem' }}
-                    >
-                      ⚡ BID +₹200 (₹{(leadingTeam ? currentBid + 200 : (currentPlayer.basePrice || 400)).toLocaleString()})
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                      <input 
+                        type="number" 
+                        placeholder="Amt" 
+                        value={bidAmountInput} 
+                        onChange={(e) => setBidAmountInput(e.target.value)}
+                        style={{ flex: 1, padding: '0.85rem', fontSize: '1.2rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)', borderRadius: '4px' }}
+                      />
+                      <button
+                        onClick={() => {
+                          const amt = bidAmountInput ? Number(bidAmountInput) : leadingTeam ? currentBid + 200 : (currentPlayer.basePrice || 400);
+                          handlePlaceBid(user.teamId, amt);
+                          setBidAmountInput('');
+                        }}
+                        className="bkl-btn bkl-btn-gold"
+                        style={{ flex: 2, fontSize: '1.4rem', padding: '0.85rem' }}
+                      >
+                        BID ₹{bidAmountInput ? Number(bidAmountInput).toLocaleString() : (leadingTeam ? currentBid + 200 : (currentPlayer.basePrice || 400)).toLocaleString()}
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -470,17 +483,26 @@ export const LiveAuctionArena = ({ user }) => {
             </div>
 
             {/* Manual Bid Trigger for Testing */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <select
-                value={selectedTeamForBid}
-                onChange={(e) => setSelectedTeamForBid(e.target.value)}
-                style={{ padding: '0.4rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-dark-border)', borderRadius: '4px' }}
-              >
-                <option value="">Select Team to Bid</option>
+            <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+              <select value={selectedTeamForBid} onChange={(e) => setSelectedTeamForBid(e.target.value)} style={{ padding: '0.4rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)' }}>
+                <option value="">-- SELECT TEAM --</option>
                 {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
+              <input 
+                type="number" 
+                placeholder="Custom Bid Amount" 
+                value={bidAmountInput} 
+                onChange={(e) => setBidAmountInput(e.target.value)}
+                style={{ width: '120px', padding: '0.4rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)' }}
+              />
               <button 
-                onClick={() => selectedTeamForBid && handlePlaceBid(Number(selectedTeamForBid), leadingTeam ? currentBid + 200 : (currentPlayer?.basePrice || 400))}
+                onClick={() => {
+                  if (selectedTeamForBid) {
+                    const amt = bidAmountInput ? Number(bidAmountInput) : leadingTeam ? currentBid + 200 : (currentPlayer?.basePrice || 400);
+                    handlePlaceBid(Number(selectedTeamForBid), amt);
+                    setBidAmountInput('');
+                  }
+                }}
                 disabled={!selectedTeamForBid || !currentPlayer}
                 className="bkl-btn bkl-btn-gold"
                 style={{ fontSize: '1.1rem', padding: '0.4rem 1rem' }}

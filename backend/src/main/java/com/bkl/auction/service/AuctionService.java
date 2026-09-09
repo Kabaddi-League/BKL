@@ -101,10 +101,7 @@ public class AuctionService {
             throw new IllegalArgumentException("Invalid bid amount. Minimum required next bid is ₹" + minimumBidRequired);
         }
 
-        // Increment rule check: Must strictly be basePrice or basePrice + 200*N (step of ₹200)
-        if (auction.getHighestBidTeam() != null && (bidAmount - currentBid) % 200 != 0) {
-            throw new IllegalArgumentException("Bids must increase in multiples of ₹200.");
-        }
+        // Removed the strict modulo check to allow exact custom jump bids
 
         // Budget Safety Check
         if (team.getRemainingBudget() < bidAmount) {
@@ -115,7 +112,7 @@ public class AuctionService {
         // Update Auction State
         auction.setCurrentBid(bidAmount);
         auction.setHighestBidTeam(team);
-        auction.setTimerSeconds(30); // Reset timer on valid bid
+         // Reset timer on valid bid
         auctionRepository.save(auction);
 
         // Record Bid
@@ -145,8 +142,8 @@ public class AuctionService {
         auction.setCurrentBid(player.getBasePrice() != null ? player.getBasePrice() : 400);
         auction.setHighestBidTeam(null);
         auction.setState(AuctionState.LIVE);
-        auction.setTimerSeconds(30);
-        auction.setTimerActive(true);
+        
+        
         auction.setStartedAt(LocalDateTime.now());
         auction.setAuctioneer(auctioneer);
         auctionRepository.save(auction);
@@ -167,7 +164,7 @@ public class AuctionService {
     public synchronized Map<String, Object> pauseAuction(User auctioneer) {
         Auction auction = getActiveAuction();
         auction.setState(AuctionState.PAUSED);
-        auction.setTimerActive(false);
+        
         auctionRepository.save(auction);
 
         auditService.logAction(auctioneer, "AUCTION_PAUSED",
@@ -182,7 +179,7 @@ public class AuctionService {
     public synchronized Map<String, Object> resumeAuction(User auctioneer) {
         Auction auction = getActiveAuction();
         auction.setState(AuctionState.LIVE);
-        auction.setTimerActive(true);
+        
         auctionRepository.save(auction);
 
         auditService.logAction(auctioneer, "AUCTION_RESUMED",
@@ -225,7 +222,7 @@ public class AuctionService {
 
         // Update auction state
         auction.setState(AuctionState.SOLD);
-        auction.setTimerActive(false);
+        
         auctionRepository.save(auction);
 
         auditService.logAction(auctioneer, "PLAYER_SOLD", player.getUser().getFullName(),
@@ -251,7 +248,7 @@ public class AuctionService {
         playerRepository.save(player);
 
         auction.setState(AuctionState.UNSOLD);
-        auction.setTimerActive(false);
+        
         auctionRepository.save(auction);
 
         auditService.logAction(auctioneer, "PLAYER_UNSOLD", player.getUser().getFullName(), "Marked unsold");
@@ -289,8 +286,8 @@ public class AuctionService {
         auction.setCurrentBid(player.getBasePrice() != null ? player.getBasePrice() : 400);
         auction.setHighestBidTeam(null);
         auction.setState(AuctionState.READY);
-        auction.setTimerSeconds(30);
-        auction.setTimerActive(false);
+        
+        
         auctionRepository.save(auction);
 
         auditService.logAction(admin, "PLAYER_REOPENED", player.getUser().getFullName(), "Reopened for auction");
@@ -307,7 +304,7 @@ public class AuctionService {
         if (availablePlayers.isEmpty()) {
             Auction auction = getActiveAuction();
             auction.setState(AuctionState.COMPLETED);
-            auction.setTimerActive(false);
+            
             auctionRepository.save(auction);
 
             Map<String, Object> res = getAuctionStateResponse(auction);
@@ -319,22 +316,65 @@ public class AuctionService {
         return startAuctionForPlayer(next.getId(), auctioneer);
     }
 
-    @Scheduled(fixedRate = 1000)
-    public void tickTimer() {
-        Auction auction = auctionRepository.findFirstByOrderByIdDesc().orElse(null);
-        if (auction != null && auction.getState() == AuctionState.LIVE && auction.isTimerActive()) {
-            int currentSeconds = auction.getTimerSeconds();
-            if (currentSeconds > 0) {
-                auction.setTimerSeconds(currentSeconds - 1);
-                auctionRepository.save(auction);
-                webSocketPublisher.publishTimerTick(auction.getTimerSeconds(), true);
+
+
+    @Transactional
+    public Map<String, Object> revokePlayer(Long playerId) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Player not found"));
+        
+        if (player.getAuctionStatus() != AuctionStatus.SOLD || player.getCurrentTeam() == null) {
+            throw new IllegalStateException("Player is not sold to any team.");
+        }
+
+        Team team = player.getCurrentTeam();
+        int price = player.getSoldPrice();
+
+        team.setRemainingBudget(team.getRemainingBudget() + price);
+        team.setTotalSpent(team.getTotalSpent() - price);
+        teamRepository.save(team);
+
+        player.setCurrentTeam(null);
+        player.setSoldPrice(0);
+        player.setAuctionStatus(AuctionStatus.UNSOLD);
+        playerRepository.save(player);
+
+        webSocketPublisher.publishAuctionUpdate("PLAYER_REVOKED", getAuctionStateResponse(getActiveAuction()));
+        return Map.of("message", "Player revoked successfully", "player", player, "team", team);
+    }
+
+    @Transactional
+    public void resetAuction() {
+        bidRepository.deleteAll();
+        purchaseRepository.deleteAll();
+
+        List<Team> teams = teamRepository.findAll();
+        for (Team t : teams) {
+            t.setRemainingBudget(t.getInitialBudget());
+            t.setTotalSpent(0);
+        }
+        teamRepository.saveAll(teams);
+
+        List<Player> players = playerRepository.findAll();
+        for (Player p : players) {
+            p.setTeam(null);
+            p.setSoldPrice(0);
+            if (p.getUser() != null && p.getUser().getRole() == Role.CAPTAIN) {
+                // Keep captains as they are
             } else {
-                // Timer expired
-                auction.setTimerActive(false);
-                auctionRepository.save(auction);
-                webSocketPublisher.publishTimerTick(0, false);
+                p.setAuctionStatus(AuctionStatus.AVAILABLE);
             }
         }
+        playerRepository.saveAll(players);
+
+        Auction auction = getActiveAuction();
+        auction.setState(AuctionState.NOT_STARTED);
+        auction.setCurrentPlayer(null);
+        auction.setCurrentBid(0);
+        auction.setHighestBidTeam(null);
+        auctionRepository.save(auction);
+
+        webSocketPublisher.publishAuctionUpdate("AUCTION_RESET", getAuctionStateResponse(auction));
     }
 
     public Map<String, Object> getAuctionStateResponse(Auction auction) {
@@ -350,14 +390,18 @@ public class AuctionService {
         map.put("currentBid", auction.getCurrentBid());
         map.put("highestBidTeam", auction.getHighestBidTeam());
         map.put("state", auction.getState());
-        map.put("timerSeconds", auction.getTimerSeconds());
-        map.put("timerActive", auction.isTimerActive());
+        
+        
         map.put("teams", teams);
         map.put("bids", recentBids);
 
         // Upcoming players queue
         List<Player> availableQueue = playerRepository.findByAuctionStatusOrderByAuctionOrderAscIdAsc(AuctionStatus.AVAILABLE);
         map.put("queue", availableQueue.stream().limit(5).toList());
+        
+        // Recently sold players
+        List<Player> recentlySold = playerRepository.findTop5ByAuctionStatusOrderByUpdatedAtDesc(AuctionStatus.SOLD);
+        map.put("recentlySold", recentlySold);
 
         return map;
     }

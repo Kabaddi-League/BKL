@@ -71,6 +71,27 @@ export const AdminDashboard = () => {
     return () => clearTimeout(delay);
   }, [activeTab, filterPool, filterType, filterStatus, searchQuery]);
 
+    const handleResetAuction = async () => {
+    if (!window.confirm("CRITICAL WARNING: This will completely wipe the auction! All teams will have their budgets refunded, all players will be marked UNASSIGNED, and all bids will be permanently deleted. Are you absolutely sure?")) return;
+    try {
+      await api.resetAuction();
+      setMessage("Auction successfully reset!");
+      loadData();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleRevokePlayer = async (playerId) => {
+    if (!window.confirm("Are you sure you want to revoke this player from their team and refund the team's budget?")) return;
+    try {
+      await api.revokePlayer(playerId);
+      setMessage("Player successfully revoked and budget refunded!");
+      loadData();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
   const handleUpdatePlayer = async (e) => {
     e.preventDefault();
     if (!selectedPlayer) return;

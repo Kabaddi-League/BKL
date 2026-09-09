@@ -29,6 +29,8 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     List<Player> findByAuctionStatusOrderByAuctionOrderAscIdAsc(AuctionStatus status);
 
+    List<Player> findTop5ByAuctionStatusOrderByUpdatedAtDesc(AuctionStatus status);
+
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     List<Player> findByCurrentTeamId(Long teamId);
 

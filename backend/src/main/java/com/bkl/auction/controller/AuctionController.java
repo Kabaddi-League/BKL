@@ -118,4 +118,26 @@ public class AuctionController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/reset")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> resetAuction() {
+        try {
+            auctionService.resetAuction();
+            return ResponseEntity.ok(Map.of("message", "Auction has been completely reset."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/revoke/{playerId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> revokePlayer(@PathVariable Long playerId) {
+        try {
+            Map<String, Object> result = auctionService.revokePlayer(playerId);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

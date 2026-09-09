@@ -25,8 +25,8 @@ public class Auction {
     @JoinColumn(name = "highest_bid_team_id")
     private Team highestBidTeam;
 
-    private Integer timerSeconds = 30;
-    private boolean timerActive = false;
+    
+    
 
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
@@ -59,11 +59,11 @@ public class Auction {
     public Team getHighestBidTeam() { return highestBidTeam; }
     public void setHighestBidTeam(Team highestBidTeam) { this.highestBidTeam = highestBidTeam; }
 
-    public Integer getTimerSeconds() { return timerSeconds; }
-    public void setTimerSeconds(Integer timerSeconds) { this.timerSeconds = timerSeconds; }
+    
+    
 
-    public boolean isTimerActive() { return timerActive; }
-    public void setTimerActive(boolean timerActive) { this.timerActive = timerActive; }
+    
+    
 
     public LocalDateTime getStartedAt() { return startedAt; }
     public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
