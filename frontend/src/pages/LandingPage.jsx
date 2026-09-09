@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { PoolBadge } from '../components/PoolBadge';
+import { Trophy } from 'lucide-react';
 
 export const LandingPage = () => {
   const [teams, setTeams] = useState([]);
@@ -27,27 +28,27 @@ export const LandingPage = () => {
 
       <div style={{ position: 'relative', zIndex: 10, maxWidth: '1400px', margin: '0 auto', padding: '4rem 2rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '3rem' }}>
           
           {/* Left Text Content */}
-          <div style={{ flex: '1 1 600px', maxWidth: '700px' }}>
-            <div style={{ color: 'var(--bkl-red)', fontFamily: 'var(--bkl-font-display)', fontSize: '1.4rem', letterSpacing: '4px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ flex: '1 1 600px', maxWidth: '750px' }}>
+            <div style={{ color: 'var(--bkl-red)', fontFamily: 'var(--bkl-font-display)', fontSize: 'clamp(1rem, 2vw, 1.4rem)', letterSpacing: '4px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               LIVE PLAYER AUCTION PLATFORM 2026
             </div>
             
-            <h1 style={{ fontSize: '7rem', color: '#fff', lineHeight: 0.9, margin: '0 0 1rem 0', fontFamily: 'var(--bkl-font-display)', fontStyle: 'italic', textTransform: 'uppercase', textShadow: '0 10px 30px rgba(0,0,0,0.8)' }}>
+            <h1 style={{ fontSize: 'clamp(4rem, 8vw, 6.5rem)', color: '#fff', lineHeight: 0.95, margin: '0 0 1rem 0', fontFamily: 'var(--bkl-font-display)', fontStyle: 'italic', textTransform: 'uppercase', textShadow: '0 10px 30px rgba(0,0,0,0.8)' }}>
               BACCHHA<br/>
               <span style={{ background: 'linear-gradient(to right, #f5b014, #ffe066)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>KABADDI LEAGUE</span>
             </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem' }}>
-              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>THE BATTLE BEGINS</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
+              <span style={{ color: '#fff', fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)', letterSpacing: '2px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>THE BATTLE BEGINS</span>
               <span style={{ color: 'var(--bkl-red)', fontWeight: 800 }}>—</span>
-              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>5 TEAMS</span>
+              <span style={{ color: '#fff', fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)', letterSpacing: '2px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>5 TEAMS</span>
               <span style={{ color: '#fff' }}>•</span>
-              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>ONE AUCTION</span>
+              <span style={{ color: '#fff', fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)', letterSpacing: '2px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>ONE AUCTION</span>
               <span style={{ color: '#fff' }}>•</span>
-              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>ONE CHAMPION</span>
+              <span style={{ color: '#fff', fontSize: 'clamp(0.9rem, 1.5vw, 1.1rem)', letterSpacing: '2px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>ONE CHAMPION</span>
             </div>
 
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
@@ -73,18 +74,18 @@ export const LandingPage = () => {
           </div>
 
           {/* Right Trophy Graphic */}
-          <div style={{ flex: '1 1 400px', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ flex: '1 1 350px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', minHeight: '400px' }}>
             <div style={{ 
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
-              width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(245,176,20,0.2) 0%, transparent 60%)', zIndex: 0 
+              width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(245,176,20,0.25) 0%, transparent 65%)', zIndex: 0 
             }}></div>
-            <img src="https://api.dicebear.com/7.x/initials/svg?seed=BKL&backgroundColor=f5b014&textColor=000" alt="Trophy" style={{ width: '280px', height: '350px', objectFit: 'cover', clipPath: 'polygon(0 0, 100% 0, 80% 100%, 20% 100%)', borderBottom: '20px solid var(--bkl-gold)', zIndex: 1 }} />
+            <Trophy size={300} strokeWidth={1} style={{ color: 'var(--bkl-gold)', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.8)) drop-shadow(0 0 40px rgba(245,176,20,0.3))', zIndex: 1 }} />
           </div>
 
         </div>
 
         {/* Bottom Stats Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '6rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '5rem' }}>
           
           <div style={{ background: 'rgba(15,18,26,0.8)', border: '1px solid #333', borderBottom: '3px solid var(--bkl-red)', padding: '1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(230,43,43,0.1)', border: '1px solid var(--bkl-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bkl-red)', fontSize: '1.5rem' }}>👥</div>

@@ -19,23 +19,17 @@ export const Navbar = ({ user, onLogout, currentPath = '/' }) => {
       }}>
         {/* Left: Brand Logo */}
         <a href="#/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-          <div style={{
-            width: '42px',
-            height: '42px',
-            background: 'linear-gradient(135deg, var(--bkl-red) 0%, #800f0f 100%)',
-            borderRadius: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontFamily: 'var(--bkl-font-display)',
-            fontSize: '1.6rem',
-            fontWeight: 'bold',
-            boxShadow: '0 0 15px var(--bkl-red-glow)',
-            border: '1px solid rgba(255,255,255,0.3)'
-          }}>
-            BKL
-          </div>
+          <img 
+            src="/bkl-favicon.svg" 
+            alt="BKL Logo" 
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '6px',
+              boxShadow: '0 0 15px var(--bkl-red-glow)',
+              border: '1px solid rgba(255,255,255,0.3)'
+            }}
+          />
           <div>
             <div className="navbar-brand-text" style={{
               fontFamily: 'var(--bkl-font-display)',
