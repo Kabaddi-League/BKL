@@ -10,7 +10,7 @@ export const Navbar = ({ user, onLogout, currentPath = '/' }) => {
       zIndex: 1000,
       padding: '0.75rem 1.5rem'
     }}>
-      <div style={{
+      <div className="navbar-container" style={{
         maxWidth: '1400px',
         margin: '0 auto',
         display: 'flex',
@@ -37,7 +37,7 @@ export const Navbar = ({ user, onLogout, currentPath = '/' }) => {
             BKL
           </div>
           <div>
-            <div style={{
+            <div className="navbar-brand-text" style={{
               fontFamily: 'var(--bkl-font-display)',
               fontSize: '1.5rem',
               lineHeight: '1',
@@ -53,7 +53,7 @@ export const Navbar = ({ user, onLogout, currentPath = '/' }) => {
         </a>
 
         {/* Center: Navigation Links */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <nav className="navbar-nav" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <a href="#/" style={{
             color: currentPath === '/' ? 'var(--bkl-gold)' : 'var(--bkl-text-muted)',
             textDecoration: 'none',

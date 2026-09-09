@@ -12,9 +12,9 @@ export const LandingPage = () => {
   }, []);
 
   return (
-    <div style={{ maxWidth: '1300px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+    <div className="page-container" style={{ maxWidth: '1300px', margin: '0 auto', padding: '2rem 1.5rem' }}>
       {/* Hero Header */}
-      <div className="bkl-card bkl-card-3d" style={{
+      <div className="bkl-card bkl-card-3d hero-card" style={{
         textAlign: 'center',
         padding: '3.5rem 2rem',
         marginBottom: '2.5rem',
@@ -48,7 +48,7 @@ export const LandingPage = () => {
           LIVE PLAYER AUCTION PLATFORM 2026
         </span>
 
-        <h1 style={{
+        <h1 className="hero-title" style={{
           fontSize: '4.5rem',
           color: '#fff',
           lineHeight: 1,
@@ -58,7 +58,7 @@ export const LandingPage = () => {
           BACCHHA KABADDI LEAGUE
         </h1>
 
-        <p style={{
+        <p className="hero-subtitle" style={{
           fontSize: '1.5rem',
           color: 'var(--bkl-gold)',
           fontFamily: 'var(--bkl-font-display)',
@@ -69,14 +69,14 @@ export const LandingPage = () => {
         </p>
 
         <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="#/login" className="bkl-btn bkl-btn-primary" style={{ fontSize: '1.5rem', padding: '0.75rem 2.2rem' }}>
+          <a href="#/login" className="bkl-btn bkl-btn-primary bkl-btn-large" style={{ fontSize: '1.5rem', padding: '0.75rem 2.2rem' }}>
             🔑 CAPTAIN & PLAYER LOGIN
           </a>
         </div>
       </div>
 
       {/* Tournament Stats Bar */}
-      <div style={{
+      <div className="stats-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '1.25rem',
@@ -85,7 +85,7 @@ export const LandingPage = () => {
         <div className="bkl-card" style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '0.85rem', color: 'var(--bkl-text-muted)', textTransform: 'uppercase' }}>REGISTERED USERS</div>
           <div style={{ fontSize: '2.5rem', fontFamily: 'var(--bkl-font-display)', color: 'var(--bkl-gold)' }}>
-            {stats?.totalRegistered || 47}
+            {stats?.totalRegistered || '50+'}
           </div>
         </div>
         <div className="bkl-card" style={{ textAlign: 'center' }}>

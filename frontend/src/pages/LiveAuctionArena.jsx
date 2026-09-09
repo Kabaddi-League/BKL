@@ -224,11 +224,9 @@ export const LiveAuctionArena = ({ user }) => {
       )}
 
       {/* Main 3-Column Arena Layout */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(260px, 300px) minmax(450px, 1fr) minmax(260px, 320px)',
+      <div className="arena-grid" style={{
         gap: '1.25rem',
-        alignItems: 'start'
+        minHeight: '600px'
       }}>
 
         {/* LEFT COLUMN: 5 TEAMS & BUDGETS */}
