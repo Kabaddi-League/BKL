@@ -7,6 +7,7 @@ export const PlayersPage = () => {
   const [poolFilter, setPoolFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   useEffect(() => {
     api.getPlayers({ pool: poolFilter, type: typeFilter, search }).then(setPlayers).catch(console.error);
@@ -47,9 +48,50 @@ export const PlayersPage = () => {
       {/* Players Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.25rem' }}>
         {players.map(player => (
-          <PlayerCard key={player.id} player={player} />
+          <PlayerCard key={player.id} player={player} onSelect={() => setSelectedPlayer(player)} actionLabel="VIEW DP & PROFILE" />
         ))}
       </div>
+
+      {/* DP Viewer Modal */}
+      {selectedPlayer && (
+        <div 
+          onClick={() => setSelectedPlayer(null)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)',
+            zIndex: 10000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1.5rem'
+          }}
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--bkl-dark-card)', border: '1px solid var(--bkl-gold)',
+              borderRadius: '12px', padding: '2.5rem', maxWidth: '400px', width: '100%',
+              textAlign: 'center', position: 'relative'
+            }}
+          >
+            <button 
+              onClick={() => setSelectedPlayer(null)}
+              style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}
+            >
+              ×
+            </button>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <img 
+                src={selectedPlayer.user?.profileImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${selectedPlayer.user?.fullName}&backgroundColor=0f172a,dc2626&textColor=ffffff`}
+                alt={selectedPlayer.user?.fullName}
+                style={{ width: '250px', height: '250px', borderRadius: '12px', objectFit: 'cover', border: '3px solid var(--bkl-gold)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+              />
+            </div>
+            <h2 style={{ fontSize: '2rem', color: '#fff', margin: 0, fontFamily: 'var(--bkl-font-display)' }}>
+              {selectedPlayer.user?.fullName}
+            </h2>
+            <div style={{ color: 'var(--bkl-gold)', fontSize: '1.1rem', fontWeight: 600, marginTop: '0.5rem' }}>
+              {selectedPlayer.user?.role === 'CAPTAIN' ? 'CAPTAIN' : selectedPlayer.playerType?.replace('_', ' ')}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

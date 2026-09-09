@@ -1,4 +1,4 @@
-﻿package com.bkl.auction.config;
+package com.bkl.auction.config;
 
 import com.bkl.auction.model.*;
 import com.bkl.auction.repository.*;
@@ -66,7 +66,7 @@ public class DataSeeder implements CommandLineRunner {
                     "karmakarkusanku515@gmail.com", // Kusanku Karmakar
                     "ankitbn9123@gmail.com",        // Ankit Raj
                     "avinashchaubey403@gmail.com",  // Avinash Chaubey
-                    "raushanuuuu44@gmail.com",      // Roushan Kumar/Pandey
+                    "raushanpandeyyy@gmail.com",    // Roushan Kumar/Pandey
                     "guptakunal62077@gmail.com",    // Kunal Gupta
                     "rohitsingh6691@gmail.com",     // Ayush singh
                     "mdfarhanahmad70@gmail.com"     // Farhan Hashmi
@@ -81,11 +81,21 @@ public class DataSeeder implements CommandLineRunner {
             ));
 
             // Read CSV and seed Users & Players
-            ClassPathResource resource = new ClassPathResource("registration_data.csv");
+            // First try reading from the file system directly (for dev environment without rebuilds)
+            java.io.File file = new java.io.File("src/main/resources/registration_data.csv");
+            java.io.InputStream is;
+            if (file.exists()) {
+                is = new java.io.FileInputStream(file);
+                log.info("Reading CSV from src/main/resources/registration_data.csv directly");
+            } else {
+                ClassPathResource resource = new ClassPathResource("registration_data.csv");
+                is = resource.getInputStream();
+                log.info("Reading CSV from classpath");
+            }
             
             List<Player> playersToSave = new ArrayList<>();
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 boolean isHeader = true;
                 while ((line = br.readLine()) != null) {
@@ -119,11 +129,14 @@ public class DataSeeder implements CommandLineRunner {
                         user = new User(email, passwordEncoder.encode(mobile), rawName, mobile, normalizedYear, role);
                         user.setMustChangePassword(false);
                         user = userRepository.save(user);
-                    }
-
-                    // Captains don't go to auction pool
-                    if (captainEmails.contains(email)) {
-                        continue;
+                    } else {
+                        // FORCE SYNC ROLE (so Aryan Kumar gets downgraded from captain if needed)
+                        if (user.getRole() != Role.SUPER_ADMIN && user.getRole() != Role.AUCTIONEER) {
+                            if (user.getRole() != role) {
+                                user.setRole(role);
+                                user = userRepository.save(user);
+                            }
+                        }
                     }
 
                     // Determine Pool
@@ -132,6 +145,8 @@ public class DataSeeder implements CommandLineRunner {
                         pool = Pool.POOL_A;
                     } else if (poolBEmails.contains(email)) {
                         pool = Pool.POOL_B;
+                    } else if (captainEmails.contains(email)) {
+                        pool = Pool.UNASSIGNED; // Captains don't have a pool
                     } else {
                         pool = Pool.POOL_C;
                     }
@@ -203,6 +218,15 @@ public class DataSeeder implements CommandLineRunner {
                     }
 
                     teamRepository.save(team);
+
+                    // Sync captain player status
+                    Player capPlayer = playerRepository.findByUser(captainUser).orElse(null);
+                    if (capPlayer != null) {
+                        capPlayer.setAuctionStatus(AuctionStatus.SOLD);
+                        capPlayer.setCurrentTeam(team);
+                        capPlayer.setSoldPrice(0); // Captain doesn't cost auction budget
+                        playerRepository.save(capPlayer);
+                    }
                 } else {
                     log.warn("Captain user not found for email: {}", capEmail);
                 }
