@@ -223,7 +223,18 @@ export const LiveAuctionArena = ({ user }) => {
         </div>
       )}
 
-      {/* Main 3-Column Arena Layout */}
+              {/* Video Conference Room */}
+        {stateStr !== 'NOT_STARTED' && (
+          <div style={{ width: '100%', height: '350px', marginBottom: '1.25rem', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--bkl-gold)', background: '#000' }}>
+            <iframe
+              src={`https://harshitzenith.daily.co/bkl-auction?displayName=${encodeURIComponent(user?.fullName || 'User')}`}
+              allow="camera; microphone; fullscreen; display-capture"
+              style={{ width: '100%', height: '100%', border: 'none' }}
+            ></iframe>
+          </div>
+        )}
+
+        {/* Main 3-Column Arena Layout */}
       <div className="arena-grid" style={{
         gap: '1.25rem',
         minHeight: '600px'
