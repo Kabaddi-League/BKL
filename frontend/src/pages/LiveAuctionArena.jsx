@@ -445,80 +445,6 @@ export const LiveAuctionArena = ({ user }) => {
             </div>
           </div>
         
-          {/* BOTTOM AUCTIONEER CONTROL PANEL */}
-      {isAuctioneer && (
-        <div style={{ width: '100%', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--bkl-dark-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: 'var(--bkl-font-display)', fontSize: '1.3rem', color: 'var(--bkl-gold)' }}>
-                AUCTIONEER CONTROLS:
-              </span>
-
-              {stateStr === 'LIVE' ? (
-                <button onClick={handlePause} className="bkl-btn bkl-btn-secondary">⏸️ PAUSE</button>
-              ) : (
-                <button onClick={handleResume} className="bkl-btn bkl-btn-gold">▶️ RESUME</button>
-              )}
-
-              <button 
-                onClick={() => setShowConfirmSell(true)} 
-                disabled={!currentPlayer || !leadingTeam}
-                className={`bkl-btn bkl-btn-primary ${(!currentPlayer || !leadingTeam) ? 'bkl-btn-disabled' : ''}`}
-              >
-                ✅ SELL PLAYER
-              </button>
-
-              <button 
-                onClick={() => setShowConfirmUnsold(true)}
-                disabled={!currentPlayer}
-                className={`bkl-btn bkl-btn-secondary ${!currentPlayer ? 'bkl-btn-disabled' : ''}`}
-                style={{ borderColor: 'var(--bkl-red)', color: '#ff6b6b' }}
-              >
-                ❌ MARK UNSOLD
-              </button>
-
-              <button onClick={handleNextPlayer} className="bkl-btn bkl-btn-secondary">
-                ⏭️ NEXT PLAYER
-              </button>
-
-              {currentPlayer && (
-                <button onClick={() => handleReopenPlayer(currentPlayer.id)} className="bkl-btn bkl-btn-secondary">
-                  🔄 REOPEN
-                </button>
-              )}
-            </div>
-
-            {/* Manual Bid Trigger for Testing */}
-            <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
-              <select value={selectedTeamForBid} onChange={(e) => setSelectedTeamForBid(e.target.value)} style={{ padding: '0.4rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)' }}>
-                <option value="">-- SELECT TEAM --</option>
-                {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-              <input 
-                type="number" 
-                placeholder="Custom Bid Amount" 
-                value={bidAmountInput} 
-                onChange={(e) => setBidAmountInput(e.target.value)}
-                style={{ width: '120px', padding: '0.4rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)' }}
-              />
-              <button 
-                onClick={() => {
-                  if (selectedTeamForBid) {
-                    const amt = bidAmountInput ? Number(bidAmountInput) : leadingTeam ? currentBid + 200 : (currentPlayer?.basePrice || 400);
-                    handlePlaceBid(Number(selectedTeamForBid), amt);
-                    setBidAmountInput('');
-                  }
-                }}
-                disabled={!selectedTeamForBid || !currentPlayer}
-                className="bkl-btn bkl-btn-gold"
-                style={{ fontSize: '1.1rem', padding: '0.4rem 1rem' }}
-              >
-                + BID FOR TEAM
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
         </div>
 
         {/* RIGHT COLUMN: REAL-TIME BID HISTORY */}
@@ -526,6 +452,95 @@ export const LiveAuctionArena = ({ user }) => {
           <BidHistory bids={bids} />
         </div>
       </div>
+
+      {/* BOTTOM AUCTIONEER CONTROL PANEL */}
+      {isAuctioneer && (
+        <div className="bkl-card" style={{
+          width: '100%',
+          marginTop: '1.25rem',
+          padding: '0.8rem 1.5rem',
+          background: 'rgba(15, 18, 26, 0.98)',
+          border: '1px solid var(--bkl-gold)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: 'var(--bkl-font-display)', fontSize: '1.2rem', color: 'var(--bkl-gold)' }}>
+              🔨 AUCTIONEER CONTROLS
+            </span>
+
+            {/* Select Team & Custom Bid inputs */}
+            <select value={selectedTeamForBid} onChange={(e) => setSelectedTeamForBid(e.target.value)} style={{ padding: '0.5rem 1rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 600 }}>
+              <option value="">-- SELECT TEAM --</option>
+              {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <input 
+              type="number" 
+              placeholder="Custom Bid (₹)" 
+              value={bidAmountInput} 
+              onChange={(e) => setBidAmountInput(e.target.value)}
+              style={{ width: '130px', padding: '0.5rem 1rem', background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', fontSize: '0.9rem' }}
+            />
+
+            {/* Auction Action Buttons */}
+            {stateStr === 'LIVE' ? (
+              <button onClick={handlePause} className="bkl-btn" style={{ borderColor: 'var(--bkl-green)', color: 'var(--bkl-green)', padding: '0.5rem 1.5rem' }}>⏸️ PAUSE</button>
+            ) : (
+              <button onClick={handleResume} className="bkl-btn" style={{ borderColor: 'var(--bkl-green)', color: 'var(--bkl-green)', padding: '0.5rem 1.5rem' }}>▶️ RESUME</button>
+            )}
+
+            <button 
+              onClick={() => setShowConfirmSell(true)} 
+              disabled={!currentPlayer || !leadingTeam}
+              className={`bkl-btn ${(!currentPlayer || !leadingTeam) ? 'bkl-btn-disabled' : ''}`}
+              style={{ background: 'var(--bkl-red)', color: '#fff', border: 'none', padding: '0.5rem 1.5rem' }}
+            >
+              🔨 SELL PLAYER
+            </button>
+
+            <button 
+              onClick={() => setShowConfirmUnsold(true)}
+              disabled={!currentPlayer}
+              className={`bkl-btn ${!currentPlayer ? 'bkl-btn-disabled' : ''}`}
+              style={{ borderColor: 'var(--bkl-red)', color: '#ff6b6b', padding: '0.5rem 1.5rem', background: 'transparent' }}
+            >
+              ❌ MARK UNSOLD
+            </button>
+
+            <button onClick={handleNextPlayer} className="bkl-btn" style={{ background: '#1e3a8a', color: '#fff', border: '1px solid #3b82f6', padding: '0.5rem 1.5rem' }}>
+              ⏭️ NEXT PLAYER
+            </button>
+
+            {currentPlayer && (
+              <button onClick={() => handleReopenPlayer(currentPlayer.id)} className="bkl-btn" style={{ borderColor: '#3b82f6', color: '#60a5fa', padding: '0.5rem 1.5rem', background: 'transparent' }}>
+                🔄 REOPEN
+              </button>
+            )}
+          </div>
+
+          <button 
+            onClick={() => {
+              if (selectedTeamForBid) {
+                const amt = bidAmountInput ? Number(bidAmountInput) : leadingTeam ? currentBid + 200 : (currentPlayer?.basePrice || 400);
+                handlePlaceBid(Number(selectedTeamForBid), amt);
+                setBidAmountInput('');
+              }
+            }}
+            disabled={!selectedTeamForBid || !currentPlayer}
+            className="bkl-btn bkl-btn-gold"
+            style={{ fontSize: '1rem', padding: '0.5rem 1.5rem', fontWeight: 800 }}
+          >
+            🪙 BID FOR TEAM
+          </button>
+        </div>
+      )}
+
+
 
       
 
