@@ -227,7 +227,7 @@ public class DataSeeder implements CommandLineRunner {
         if (auctionRepository.count() == 0) {
             Auction auction = new Auction();
             auction.setState(AuctionState.IDLE);
-            auction.setTimerSeconds(30);
+            
             auctionRepository.save(auction);
         }
     }

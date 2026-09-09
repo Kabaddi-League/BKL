@@ -357,7 +357,7 @@ public class AuctionService {
 
         List<Player> players = playerRepository.findAll();
         for (Player p : players) {
-            p.setTeam(null);
+            p.setCurrentTeam(null);
             p.setSoldPrice(0);
             if (p.getUser() != null && p.getUser().getRole() == Role.CAPTAIN) {
                 // Keep captains as they are
@@ -368,7 +368,7 @@ public class AuctionService {
         playerRepository.saveAll(players);
 
         Auction auction = getActiveAuction();
-        auction.setState(AuctionState.NOT_STARTED);
+        auction.setState(AuctionState.IDLE);
         auction.setCurrentPlayer(null);
         auction.setCurrentBid(0);
         auction.setHighestBidTeam(null);
