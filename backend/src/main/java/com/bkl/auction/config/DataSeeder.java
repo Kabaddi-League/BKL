@@ -196,11 +196,21 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private User createOrGetUser(String email, String password, String fullName, String mobile, String year, Role role) {
-        return userRepository.findByEmailIgnoreCase(email).orElseGet(() -> {
+        Optional<User> existing = userRepository.findByEmailIgnoreCase(email);
+        if (existing.isPresent()) {
+            User u = existing.get();
+            // Force update role and password for admins to ensure access
+            if (role == Role.SUPER_ADMIN || role == Role.AUCTIONEER) {
+                u.setPassword(passwordEncoder.encode(password));
+                u.setRole(role);
+                userRepository.save(u);
+            }
+            return u;
+        } else {
             User u = new User(email, passwordEncoder.encode(password), fullName, mobile, year, role);
-            u.setMustChangePassword(true);
+            u.setMustChangePassword(false);
             return userRepository.save(u);
-        });
+        }
     }
 
     private String normalizeYear(String year) {
