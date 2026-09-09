@@ -245,6 +245,13 @@ export const AdminDashboard = () => {
               </div>
             </div>
           </div>
+
+          <div className="bkl-card" style={{ marginTop: '2rem', border: '1px solid var(--bkl-red)' }}>
+            <h3 style={{ fontSize: '1.3rem', color: 'var(--bkl-red)', marginBottom: '1rem' }}>DANGER ZONE</h3>
+            <button onClick={handleResetAuction} className="bkl-btn" style={{ background: 'var(--bkl-red)', color: '#fff', padding: '0.75rem 1.5rem', fontWeight: 700 }}>
+              RESET FULL AUCTION
+            </button>
+          </div>
         </div>
       )}
 
