@@ -33,7 +33,7 @@ public class AuctionController {
                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             if (userDetails == null) return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
-            Map<String, Object> result = auctionService.placeBid(userDetails.getUser(), request.getTeamId(), request.getAmount());
+            Map<String, Object> result = auctionService.placeBid(userDetails.getUser(), request.getTeamId(), request.getAmount(), request.getBidRequestId());
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

@@ -17,6 +17,10 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     Optional<Player> findById(Long id);
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Player p WHERE p.id = :id")
+    Optional<Player> findByIdWithLock(@org.springframework.data.repository.query.Param("id") Long id);
+
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user", "currentTeam"})
     Optional<Player> findByUser(User user);
 

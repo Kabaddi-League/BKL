@@ -31,6 +31,12 @@ public class Bid {
     @Column(nullable = false)
     private Integer amount;
 
+    @Column(name = "bid_request_id", length = 64)
+    private String bidRequestId;
+
+    @Column(name = "is_void", nullable = false)
+    private Boolean isVoid = false;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Bid() {}
@@ -60,6 +66,12 @@ public class Bid {
 
     public Integer getAmount() { return amount; }
     public void setAmount(Integer amount) { this.amount = amount; }
+
+    public String getBidRequestId() { return bidRequestId; }
+    public void setBidRequestId(String bidRequestId) { this.bidRequestId = bidRequestId; }
+
+    public Boolean getIsVoid() { return isVoid; }
+    public void setIsVoid(Boolean isVoid) { this.isVoid = isVoid != null ? isVoid : false; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

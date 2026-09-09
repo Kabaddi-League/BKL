@@ -25,6 +25,8 @@ export const LiveAuctionArena = ({ user }) => {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [bidAmountInput, setBidAmountInput] = useState('');
   const [selectedTeamForBid, setSelectedTeamForBid] = useState('');
+  const [isBidding, setIsBidding] = useState(false);
+  const [isSelling, setIsSelling] = useState(false);
 
   const isAuctioneer = user && (user.role === 'SUPER_ADMIN' || user.role === 'AUCTIONEER');
   const isCaptain = user && user.role === 'CAPTAIN';
@@ -122,6 +124,8 @@ export const LiveAuctionArena = ({ user }) => {
   };
 
   const handleSell = async () => {
+    if (isSelling) return;
+    setIsSelling(true);
     setShowConfirmSell(false);
     try {
       await api.sellPlayer();
@@ -130,6 +134,9 @@ export const LiveAuctionArena = ({ user }) => {
       loadState();
     } catch (err) {
       setErrorMsg(err.message);
+      loadState();
+    } finally {
+      setIsSelling(false);
     }
   };
 
@@ -162,12 +169,18 @@ export const LiveAuctionArena = ({ user }) => {
   };
 
   const handlePlaceBid = async (teamId, amount) => {
+    if (isBidding) return;
+    setIsBidding(true);
     setErrorMsg('');
     try {
-      await api.placeBid(teamId, amount);
+      const bidRequestId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random());
+      await api.placeBid(teamId, amount, bidRequestId);
       loadState();
     } catch (err) {
       setErrorMsg(err.message);
+      loadState();
+    } finally {
+      setIsBidding(false);
     }
   };
 
@@ -397,10 +410,11 @@ export const LiveAuctionArena = ({ user }) => {
                           handlePlaceBid(user.teamId, amt);
                           setBidAmountInput('');
                         }}
+                        disabled={isBidding}
                         className="bkl-btn bkl-btn-gold"
-                        style={{ flex: 2, fontSize: '1.4rem', padding: '0.85rem' }}
+                        style={{ flex: 2, fontSize: '1.4rem', padding: '0.85rem', opacity: isBidding ? 0.6 : 1, cursor: isBidding ? 'not-allowed' : 'pointer' }}
                       >
-                        BID ₹{bidAmountInput ? Number(bidAmountInput).toLocaleString() : (leadingTeam ? currentBid + 200 : (currentPlayer.basePrice || 400)).toLocaleString()}
+                        {isBidding ? 'PLACING BID...' : `BID ₹${bidAmountInput ? Number(bidAmountInput).toLocaleString() : (leadingTeam ? currentBid + 200 : (currentPlayer.basePrice || 400)).toLocaleString()}`}
                       </button>
                     </div>
                   )}
@@ -503,10 +517,10 @@ export const LiveAuctionArena = ({ user }) => {
 
             <button 
               onClick={() => setShowConfirmSell(true)} 
-              disabled={!currentPlayer || !leadingTeam}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bkl-red)', color: '#fff', border: 'none', padding: '0.4rem 1.2rem', borderRadius: '4px', fontWeight: 600, cursor: (!currentPlayer || !leadingTeam) ? 'not-allowed' : 'pointer', opacity: (!currentPlayer || !leadingTeam) ? 0.5 : 1 }}
+              disabled={!currentPlayer || !leadingTeam || isSelling}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bkl-red)', color: '#fff', border: 'none', padding: '0.4rem 1.2rem', borderRadius: '4px', fontWeight: 600, cursor: (!currentPlayer || !leadingTeam || isSelling) ? 'not-allowed' : 'pointer', opacity: (!currentPlayer || !leadingTeam || isSelling) ? 0.5 : 1 }}
             >
-              <Gavel size={16} /> SELL PLAYER
+              <Gavel size={16} /> {isSelling ? 'SELLING...' : 'SELL PLAYER'}
             </button>
 
             <button 
@@ -536,10 +550,10 @@ export const LiveAuctionArena = ({ user }) => {
                 setBidAmountInput('');
               }
             }}
-            disabled={!selectedTeamForBid || !currentPlayer}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bkl-gold)', color: '#000', border: 'none', padding: '0.4rem 1.5rem', borderRadius: '4px', fontWeight: 800, cursor: (!selectedTeamForBid || !currentPlayer) ? 'not-allowed' : 'pointer', opacity: (!selectedTeamForBid || !currentPlayer) ? 0.5 : 1 }}
+            disabled={!selectedTeamForBid || !currentPlayer || isBidding}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bkl-gold)', color: '#000', border: 'none', padding: '0.4rem 1.5rem', borderRadius: '4px', fontWeight: 800, cursor: (!selectedTeamForBid || !currentPlayer || isBidding) ? 'not-allowed' : 'pointer', opacity: (!selectedTeamForBid || !currentPlayer || isBidding) ? 0.5 : 1 }}
           >
-            <Coins size={18} /> BID FOR TEAM
+            <Coins size={18} /> {isBidding ? 'BIDDING...' : 'BID FOR TEAM'}
           </button>
         </div>
       )}

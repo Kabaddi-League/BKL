@@ -149,11 +149,15 @@ export const api = {
     return await res.json();
   },
 
-  placeBid: async (teamId, amount) => {
+  placeBid: async (teamId, amount, bidRequestId) => {
     const res = await fetch(`${API_BASE_URL}/auction/bid`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ teamId, amount })
+      body: JSON.stringify({ 
+        teamId, 
+        amount,
+        bidRequestId: bidRequestId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random()))
+      })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to place bid');

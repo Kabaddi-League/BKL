@@ -73,6 +73,6 @@ public class DashboardController {
 
     @GetMapping("/purchases")
     public ResponseEntity<?> getAllPurchases() {
-        return ResponseEntity.ok(purchaseRepository.findAllByOrderBySoldAtDesc());
+        return ResponseEntity.ok(purchaseRepository.findAllByIsVoidFalseOrderBySoldAtDesc());
     }
 }

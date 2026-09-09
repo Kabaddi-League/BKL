@@ -29,6 +29,9 @@ public class Purchase {
 
     private LocalDateTime soldAt = LocalDateTime.now();
 
+    @Column(name = "is_void", nullable = false)
+    private Boolean isVoid = false;
+
     public Purchase() {}
 
     public Purchase(Player player, Team team, Integer soldPrice, Auction auction) {
@@ -55,4 +58,7 @@ public class Purchase {
 
     public LocalDateTime getSoldAt() { return soldAt; }
     public void setSoldAt(LocalDateTime soldAt) { this.soldAt = soldAt; }
+
+    public Boolean getIsVoid() { return isVoid; }
+    public void setIsVoid(Boolean isVoid) { this.isVoid = isVoid != null ? isVoid : false; }
 }
