@@ -1,4 +1,4 @@
-package com.bkl.auction.config;
+﻿package com.bkl.auction.config;
 
 import com.bkl.auction.model.*;
 import com.bkl.auction.repository.*;
@@ -46,170 +46,174 @@ public class DataSeeder implements CommandLineRunner {
             User admin1 = createOrGetUser("harshmrigank@gmail.com", "harshmrigank@gmail.com", "Harsh Mrigank", "9308354518", "4th", Role.SUPER_ADMIN);
             User admin2 = createOrGetUser("harshitkumar4840@gmail.com", "harshitkumar4840@gmail.com", "Harshit Kumar", "9800000000", "4th", Role.AUCTIONEER);
 
-            if (userRepository.count() > 2) {
-                log.info("Database already contains data. Skipping initial seeding.");
-                
-                // Disable password scheme for all existing users
-                List<User> allUsers = userRepository.findAll();
-                boolean updated = false;
-                for (User u : allUsers) {
-                    if (u.isMustChangePassword()) {
-                        u.setMustChangePassword(false);
-                        userRepository.save(u);
-                        updated = true;
+            log.info("Starting BKL Data Seeding from CSV (Idempotent Sync)...");
+
+            // Define Pool Email Sets
+            Set<String> poolAEmails = new HashSet<>(Arrays.asList(
+                    "singh171761@gmail.com",      // Shivam Kumar
+                    "angshujha2005@gmail.com",    // Angshu Jha
+                    "dimpu108111@gmail.com",      // Siddharth Kumar
+                    "mayankraj02012006@gmail.com",// Mayank
+                    "mrigankharsh@gmail.com"      // Harsh Mrigank (Player)
+            ));
+
+            Set<String> poolBEmails = new HashSet<>(Arrays.asList(
+                    "starc7613@gmail.com",          // Utkarsh
+                    "yuvrajmahto270@gmail.com",     // Yuvraj Kumar
+                    "kashyapkaushik111@gmail.com",  // Kaushik Kashyap
+                    "swarupsarkar058@gmail.com",    // Swarup Kumar Sarkar
+                    "monuc9687@gmail.com",          // Aditya Kunar
+                    "karmakarkusanku515@gmail.com", // Kusanku Karmakar
+                    "ankitbn9123@gmail.com",        // Ankit Raj
+                    "avinashchaubey403@gmail.com",  // Avinash Chaubey
+                    "raushanuuuu44@gmail.com",      // Roushan Kumar/Pandey
+                    "guptakunal62077@gmail.com",    // Kunal Gupta
+                    "rohitsingh6691@gmail.com",     // Ayush singh
+                    "mdfarhanahmad70@gmail.com"     // Farhan Hashmi
+            ));
+
+            Set<String> captainEmails = new HashSet<>(Arrays.asList(
+                    "shaktipipra@gmail.com",         // Shakti Kumar
+                    "kaushiktejas713@gmail.com",     // Tejas Koushik
+                    "ragyamsinha@gmail.com",         // Ragyam Sinha
+                    "mishraankit24x@gmail.com",      // Ankit Mishra
+                    "harshitchauhan00001@gmail.com"  // Harshit Thala
+            ));
+
+            // Read CSV and seed Users & Players
+            ClassPathResource resource = new ClassPathResource("registration_data.csv");
+            
+            List<Player> playersToSave = new ArrayList<>();
+
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                boolean isHeader = true;
+                while ((line = br.readLine()) != null) {
+                    if (isHeader) {
+                        isHeader = false;
+                        continue;
                     }
-                }
-                if (updated) log.info("Disabled forced password change for existing users.");
+                    String[] parts = line.split(",", -1);
+                    if (parts.length < 6) continue;
 
-                ensureInitialAuctionState();
-                return;
+                    // Strip quotes and trim
+                    String email = parts[1].replaceAll("\"", "").trim().toLowerCase();
+                    String rawName = parts[2].replaceAll("\"", "").trim();
+                    String mobile = parts[3].replaceAll("\"", "").trim().replaceAll("\\s+", "");
+                    String rawYear = parts[4].replaceAll("\"", "").trim();
+                    String rawType = parts[5].replaceAll("\"", "").trim();
+
+                    String normalizedYear = normalizeYear(rawYear);
+                    PlayerType playerType = PlayerType.fromString(rawType);
+
+                    Role role = Role.PLAYER;
+                    if (captainEmails.contains(email)) {
+                        role = Role.CAPTAIN;
+                    } else if (email.equals("harshmrigank@gmail.com")) {
+                        role = Role.SUPER_ADMIN;
+                    }
+
+                    // Create user with MOBILE number as password
+                    User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+                    if (user == null) {
+                        user = new User(email, passwordEncoder.encode(mobile), rawName, mobile, normalizedYear, role);
+                        user.setMustChangePassword(false);
+                        user = userRepository.save(user);
+                    }
+
+                    // Captains don't go to auction pool
+                    if (captainEmails.contains(email)) {
+                        continue;
+                    }
+
+                    // Determine Pool
+                    Pool pool;
+                    if (poolAEmails.contains(email)) {
+                        pool = Pool.POOL_A;
+                    } else if (poolBEmails.contains(email)) {
+                        pool = Pool.POOL_B;
+                    } else {
+                        pool = Pool.POOL_C;
+                    }
+
+                    // IDEMPOTENT PLAYER CREATION
+                    Player player = playerRepository.findByUser(user).orElse(null);
+                    if (player == null) {
+                        player = new Player(user, playerType, pool, pool.getBasePrice());
+                    } else {
+                        player.setPlayerType(playerType);
+                        player.setPool(pool);
+                        // base price might have changed, only update if not SOLD
+                        if (player.getAuctionStatus() == null || player.getAuctionStatus() == AuctionStatus.UNASSIGNED) {
+                            player.setBasePrice(pool.getBasePrice());
+                        }
+                    }
+                    playersToSave.add(player);
+                }
             }
-        } catch (Exception e) {
-            log.warn("Could not check user count directly, proceeding with seeding: {}", e.getMessage());
-        }
-
-        log.info("Starting BKL Data Seeding from CSV...");
-
-        // Define Pool Email Sets
-        Set<String> poolAEmails = new HashSet<>(Arrays.asList(
-                "singh171761@gmail.com",      // Shivam Kumar
-                "angshujha2005@gmail.com",    // Angshu Jha
-                "dimpu108111@gmail.com",      // Siddharth Kumar
-                "mayankraj02012006@gmail.com",// Mayank
-                "mrigankharsh@gmail.com"      // Harsh Mrigank (Player)
-        ));
-
-        Set<String> poolBEmails = new HashSet<>(Arrays.asList(
-                "starc7613@gmail.com",          // Utkarsh
-                "yuvrajmahto270@gmail.com",     // Yuvraj Kumar
-                "kashyapkaushik111@gmail.com",  // Kaushik Kashyap
-                "swarupsarkar058@gmail.com",    // Swarup Kumar Sarkar
-                "monuc9687@gmail.com",          // Aditya Kunar
-                "karmakarkusanku515@gmail.com", // Kusanku Karmakar
-                "ankitbn9123@gmail.com",        // Ankit Raj
-                "avinashchaubey403@gmail.com",  // Avinash Chaubey
-                "raushanuuuu44@gmail.com",      // Roushan Kumar/Pandey
-                "guptakunal62077@gmail.com",    // Kunal Gupta
-                "rohitsingh6691@gmail.com",     // Ayush singh
-                "mdfarhanahmad70@gmail.com"     // Farhan Hashmi
-        ));
-
-        Set<String> captainEmails = new HashSet<>(Arrays.asList(
-                "shaktipipra@gmail.com",         // Shakti Kumar
-                "kaushiktejas713@gmail.com",     // Tejas Koushik
-                "ragyamsinha@gmail.com",         // Ragyam Sinha
-                "mishraankit24x@gmail.com",      // Ankit Mishra
-                "harshitchauhan00001@gmail.com"  // Harshit Thala
-        ));
-
-        // Read CSV and seed Users & Players
-        ClassPathResource resource = new ClassPathResource("registration_data.csv");
-        
-        List<Player> playersToSave = new ArrayList<>();
-
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            boolean isHeader = true;
-            while ((line = br.readLine()) != null) {
-                if (isHeader) {
-                    isHeader = false;
-                    continue;
+            
+            // Sort players: Pool A -> B -> C, then Alphabetical by Name
+            playersToSave.sort(Comparator.comparing((Player p) -> p.getPool().name())
+                    .thenComparing(p -> p.getUser().getFullName().toLowerCase()));
+                    
+            // Assign auction order and save
+            int orderCounter = 1;
+            for (Player p : playersToSave) {
+                // Keep existing order if already assigned, otherwise set it
+                if (p.getAuctionOrder() == null || p.getAuctionOrder() == 0) {
+                    p.setAuctionOrder(orderCounter);
                 }
-                String[] parts = line.split(",", -1);
-                if (parts.length < 6) continue;
+                orderCounter++;
+                playerRepository.save(p);
+            }
 
-                // Strip quotes and trim
-                String email = parts[1].replaceAll("\"", "").trim().toLowerCase();
-                String rawName = parts[2].replaceAll("\"", "").trim();
-                String mobile = parts[3].replaceAll("\"", "").trim().replaceAll("\\s+", "");
-                String rawYear = parts[4].replaceAll("\"", "").trim();
-                String rawType = parts[5].replaceAll("\"", "").trim();
+            // Seed 5 Teams & Map Captains
+            Map<String, String> teamCaptainMap = new LinkedHashMap<>();
+            teamCaptainMap.put("Iron Lobby", "shaktipipra@gmail.com");
+            teamCaptainMap.put("Velocity", "kaushiktejas713@gmail.com");
+            teamCaptainMap.put("Chain-Breaker", "ragyamsinha@gmail.com");
+            teamCaptainMap.put("No Mercy", "mishraankit24x@gmail.com");
+            teamCaptainMap.put("Apex Titans", "harshitchauhan00001@gmail.com");
 
-                String normalizedYear = normalizeYear(rawYear);
-                PlayerType playerType = PlayerType.fromString(rawType);
+            for (Map.Entry<String, String> entry : teamCaptainMap.entrySet()) {
+                String teamName = entry.getKey();
+                String capEmail = entry.getValue();
+                User captainUser = userRepository.findByEmailIgnoreCase(capEmail).orElse(null);
+                
+                if (captainUser != null) {
+                    // IDEMPOTENT TEAM CREATION
+                    Team team = teamRepository.findByNameIgnoreCase(teamName).orElse(null);
+                    if (team == null) {
+                        team = new Team(teamName, captainUser);
+                    } else {
+                        team.setCaptain(captainUser);
+                    }
+                    
+                    // Set custom logos based on team name
+                    if (teamName.equals("Chain-Breaker")) {
+                        team.setLogoUrl("/logos/chain-breaker.jpg");
+                    } else if (teamName.equals("No Mercy")) {
+                        team.setLogoUrl("/logos/no-mercy.png");
+                    } else if (teamName.equals("Velocity")) {
+                        team.setLogoUrl("/logos/velocity.png");
+                    } else if (teamName.equals("Iron Lobby")) {
+                        team.setLogoUrl("/logos/iron-lobby.png");
+                    } else if (teamName.equals("Apex Titans")) {
+                        team.setLogoUrl("/logos/apex-titans.jpg");
+                    }
 
-                Role role = Role.PLAYER;
-                if (captainEmails.contains(email)) {
-                    role = Role.CAPTAIN;
-                } else if (email.equals("harshmrigank@gmail.com")) {
-                    role = Role.SUPER_ADMIN;
-                }
-
-                // Create user with MOBILE number as password
-                User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
-                if (user == null) {
-                    user = new User(email, passwordEncoder.encode(mobile), rawName, mobile, normalizedYear, role);
-                    user.setMustChangePassword(false);
-                    user = userRepository.save(user);
-                }
-
-                // Captains don't go to auction pool
-                if (captainEmails.contains(email)) {
-                    continue;
-                }
-
-                // Determine Pool
-                Pool pool;
-                if (poolAEmails.contains(email)) {
-                    pool = Pool.POOL_A;
-                } else if (poolBEmails.contains(email)) {
-                    pool = Pool.POOL_B;
+                    teamRepository.save(team);
                 } else {
-                    pool = Pool.POOL_C;
+                    log.warn("Captain user not found for email: {}", capEmail);
                 }
-
-                Player player = new Player(user, playerType, pool, pool.getBasePrice());
-                playersToSave.add(player);
             }
+
+            ensureInitialAuctionState();
+            log.info("Data Seeding Completed Successfully. Total Users: {}", userRepository.count());
+            
+        } catch (Exception e) {
+            log.error("Error during data seeding: ", e);
         }
-        
-        // Sort players: Pool A -> B -> C, then Alphabetical by Name
-        playersToSave.sort(Comparator.comparing((Player p) -> p.getPool().name())
-                .thenComparing(p -> p.getUser().getFullName().toLowerCase()));
-                
-        // Assign auction order and save
-        int orderCounter = 1;
-        for (Player p : playersToSave) {
-            p.setAuctionOrder(orderCounter++);
-            playerRepository.save(p);
-        }
-
-        // Seed 5 Teams & Map Captains
-        Map<String, String> teamCaptainMap = new LinkedHashMap<>();
-        teamCaptainMap.put("Iron Lobby", "shaktipipra@gmail.com");
-        teamCaptainMap.put("Velocity", "kaushiktejas713@gmail.com");
-        teamCaptainMap.put("Chain-Breaker", "ragyamsinha@gmail.com");
-        teamCaptainMap.put("No Mercy", "mishraankit24x@gmail.com");
-        teamCaptainMap.put("Apex Titans", "harshitchauhan00001@gmail.com");
-
-        for (Map.Entry<String, String> entry : teamCaptainMap.entrySet()) {
-            String teamName = entry.getKey();
-            String capEmail = entry.getValue();
-            User captainUser = userRepository.findByEmailIgnoreCase(capEmail).orElse(null);
-            if (captainUser != null) {
-                Team team = new Team(teamName, captainUser);
-                
-                // Set custom logos based on team name
-                if (teamName.equals("Chain-Breaker")) {
-                    team.setLogoUrl("/logos/chain-breaker.jpg");
-                } else if (teamName.equals("No Mercy")) {
-                    team.setLogoUrl("/logos/no-mercy.png");
-                } else if (teamName.equals("Velocity")) {
-                    team.setLogoUrl("/logos/velocity.png");
-                } else if (teamName.equals("Iron Lobby")) {
-                    team.setLogoUrl("/logos/iron-lobby.png");
-                } else if (teamName.equals("Apex Titans")) {
-                    team.setLogoUrl("/logos/apex-titans.jpg");
-                }
-
-                teamRepository.save(team);
-            } else {
-                log.warn("Captain user not found for email: {}", capEmail);
-            }
-        }
-
-        ensureInitialAuctionState();
-        log.info("Data Seeding Completed Successfully. Total Users: {}", userRepository.count());
     }
 
     private User createOrGetUser(String email, String password, String fullName, String mobile, String year, Role role) {
@@ -244,7 +248,6 @@ public class DataSeeder implements CommandLineRunner {
         if (auctionRepository.count() == 0) {
             Auction auction = new Auction();
             auction.setState(AuctionState.IDLE);
-            
             auctionRepository.save(auction);
         }
     }
