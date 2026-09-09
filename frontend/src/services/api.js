@@ -221,14 +221,14 @@ export const api = {
   },
 
   resetAuction: async () => {
-    const res = await fetch(${API_BASE_URL}/auction/reset, { method: 'POST', headers: getAuthHeaders() });
+    const res = await fetch(`${API_BASE_URL}/auction/reset`, { method: 'POST', headers: getAuthHeaders() });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to reset auction');
     return data;
   },
 
   revokePlayer: async (playerId) => {
-    const res = await fetch(${API_BASE_URL}/auction/revoke/${playerId}, { method: 'POST', headers: getAuthHeaders() });
+    const res = await fetch(`${API_BASE_URL}/auction/revoke/${playerId}`, { method: 'POST', headers: getAuthHeaders() });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to revoke player');
     return data;
