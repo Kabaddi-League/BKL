@@ -88,7 +88,10 @@ public class DataSeeder implements CommandLineRunner {
                 "karmakarkusanku515@gmail.com", // Kusanku Karmakar
                 "ankitbn9123@gmail.com",        // Ankit Raj
                 "avinashchaubey403@gmail.com",  // Avinash Chaubey
-                "raushanuuuu44@gmail.com"       // Roushan Kumar/Pandey
+                "raushanuuuu44@gmail.com",      // Roushan Kumar/Pandey
+                "guptakunal62077@gmail.com",    // Kunal Gupta
+                "rohitsingh6691@gmail.com",     // Ayush singh
+                "mdfarhanahmad70@gmail.com"     // Farhan Hashmi
         ));
 
         Set<String> captainEmails = new HashSet<>(Arrays.asList(
@@ -185,6 +188,20 @@ public class DataSeeder implements CommandLineRunner {
             User captainUser = userRepository.findByEmailIgnoreCase(capEmail).orElse(null);
             if (captainUser != null) {
                 Team team = new Team(teamName, captainUser);
+                
+                // Set custom logos based on team name
+                if (teamName.equals("Chain-Breaker")) {
+                    team.setLogoUrl("/logos/chain-breaker.jpg");
+                } else if (teamName.equals("No Mercy")) {
+                    team.setLogoUrl("/logos/no-mercy.png");
+                } else if (teamName.equals("Velocity")) {
+                    team.setLogoUrl("/logos/velocity.png");
+                } else if (teamName.equals("Iron Lobby")) {
+                    team.setLogoUrl("/logos/iron-lobby.png");
+                } else if (teamName.equals("Apex Titans")) {
+                    team.setLogoUrl("/logos/apex-titans.jpg");
+                }
+
                 teamRepository.save(team);
             } else {
                 log.warn("Captain user not found for email: {}", capEmail);

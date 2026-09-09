@@ -240,7 +240,7 @@ export const AdminDashboard = () => {
                   <PoolBadge pool="POOL_C" /> <strong style={{ fontSize: '1.2rem', color: '#fff' }}>{stats.poolCCount} Players</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <PoolBadge pool="UNASSIGNED" /> <strong style={{ fontSize: '1.2rem', color: 'var(--bkl-orange)' }}>{stats.unassignedCount} Players (Aryan Kumar)</strong>
+                  <PoolBadge pool="UNASSIGNED" /> <strong style={{ fontSize: '1.2rem', color: 'var(--bkl-orange)' }}>{stats.unassignedCount} Players</strong>
                 </div>
               </div>
             </div>
@@ -321,7 +321,7 @@ export const AdminDashboard = () => {
               <option value="POOL_A">Pool A (₹1,000)</option>
               <option value="POOL_B">Pool B (₹800)</option>
               <option value="POOL_C">Pool C (₹400)</option>
-              <option value="UNASSIGNED">Unassigned (Aryan Kumar)</option>
+              <option value="UNASSIGNED">Unassigned</option>
             </select>
 
             <select value={filterType} onChange={(e) => setFilterType(e.target.value)} style={{ padding: '0.6rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-dark-border)', borderRadius: '4px' }}>

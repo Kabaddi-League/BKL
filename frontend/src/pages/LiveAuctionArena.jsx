@@ -444,22 +444,10 @@ export const LiveAuctionArena = ({ user }) => {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* RIGHT COLUMN: REAL-TIME BID HISTORY */}
-        <div style={{ height: '620px' }}>
-          <BidHistory bids={bids} />
-        </div>
-      </div>
-
-      {/* BOTTOM AUCTIONEER CONTROL PANEL */}
+        
+          {/* BOTTOM AUCTIONEER CONTROL PANEL */}
       {isAuctioneer && (
-        <div className="bkl-card" style={{
-          marginTop: '1.5rem',
-          padding: '1.25rem',
-          borderTop: '3px solid var(--bkl-gold)',
-          background: 'rgba(15, 18, 26, 0.98)'
-        }}>
+        <div style={{ width: '100%', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--bkl-dark-border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               <span style={{ fontFamily: 'var(--bkl-font-display)', fontSize: '1.3rem', color: 'var(--bkl-gold)' }}>
@@ -531,6 +519,15 @@ export const LiveAuctionArena = ({ user }) => {
           </div>
         </div>
       )}
+        </div>
+
+        {/* RIGHT COLUMN: REAL-TIME BID HISTORY */}
+        <div style={{ height: '620px' }}>
+          <BidHistory bids={bids} />
+        </div>
+      </div>
+
+      
 
       {/* Confirmation Modals */}
       <ConfirmModal
