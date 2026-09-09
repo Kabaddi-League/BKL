@@ -114,7 +114,7 @@ export const PlayerCard = ({ player, onSelect, actionLabel = 'VIEW' }) => {
               {player.currentTeam?.name || 'Assigned Team'}
             </div>
             <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, fontFamily: 'var(--bkl-font-display)' }}>
-              ₹{player.soldPrice?.toLocaleString()}
+              {player.user?.role === 'CAPTAIN' || player.soldPrice === 0 ? 'CAPTAIN' : `₹${player.soldPrice?.toLocaleString()}`}
             </div>
           </div>
         ) : (

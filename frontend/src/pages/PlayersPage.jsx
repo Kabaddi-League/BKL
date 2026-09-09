@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { PlayerCard } from '../components/PlayerCard';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const PlayersPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [poolFilter, setPoolFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -89,6 +93,28 @@ export const PlayersPage = () => {
             <div style={{ color: 'var(--bkl-gold)', fontSize: '1.1rem', fontWeight: 600, marginTop: '0.5rem' }}>
               {selectedPlayer.user?.role === 'CAPTAIN' ? 'CAPTAIN' : selectedPlayer.playerType?.replace('_', ' ')}
             </div>
+
+            {(user?.role === 'SUPER_ADMIN' || user?.role === 'AUCTIONEER') && selectedPlayer.auctionStatus !== 'SOLD' && selectedPlayer.user?.role !== 'CAPTAIN' && (
+              <div style={{ marginTop: '2rem' }}>
+                <button 
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (window.confirm(Start auction for ?)) {
+                      try {
+                        await api.updateAuctionState({ state: 'READY', currentPlayerId: selectedPlayer.id });
+                        navigate('/arena');
+                      } catch (err) {
+                        alert(err.message);
+                      }
+                    }
+                  }}
+                  className="bkl-btn"
+                  style={{ background: 'var(--bkl-red)', color: '#fff', width: '100%', padding: '1rem', fontSize: '1.1rem', fontWeight: 'bold' }}
+                >
+                  START AUCTION WITH {selectedPlayer.user?.fullName.split(' ')[0].toUpperCase()}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
