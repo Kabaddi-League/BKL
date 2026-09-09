@@ -225,7 +225,7 @@ export const LiveAuctionArena = ({ user }) => {
 
               {/* Video Conference Room */}
         {stateStr !== 'NOT_STARTED' && (
-          <div style={{ width: '100%', height: '350px', marginBottom: '1.25rem', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--bkl-gold)', background: '#000' }}>
+          <div style={{ width: '100%', height: '550px', marginBottom: '1.25rem', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--bkl-gold)', background: '#000' }}>
             <iframe
               src={`https://meet.jit.si/BKL-Auction-2026#config.prejoinPageEnabled=false&userInfo.displayName=${encodeURIComponent(user?.fullName || 'User')}`}
               allow="camera; microphone; fullscreen; display-capture"
