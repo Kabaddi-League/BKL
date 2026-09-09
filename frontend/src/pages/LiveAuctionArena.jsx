@@ -181,7 +181,7 @@ export const LiveAuctionArena = ({ user }) => {
   const isCaptainLeading = isCaptain && leadingTeam && user?.teamId === leadingTeam.id;
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '1.25rem 1rem' }}>
+    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '1.25rem 1rem', paddingBottom: isAuctioneer ? '120px' : '1.25rem' }}>
       {/* Real-time connection bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -456,13 +456,19 @@ export const LiveAuctionArena = ({ user }) => {
       {/* BOTTOM AUCTIONEER CONTROL PANEL */}
       {isAuctioneer && (
         <div className="bkl-card" style={{
-          width: '100%',
-          marginTop: '1.25rem',
+          position: 'fixed',
+          bottom: '1.25rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'calc(100% - 2.5rem)',
+          maxWidth: '1400px',
+          zIndex: 1000,
           padding: '0.8rem 1.5rem',
-          background: 'rgba(15, 18, 26, 0.98)',
+          background: 'rgba(15, 18, 26, 0.95)',
+          backdropFilter: 'blur(10px)',
           border: '1px solid var(--bkl-gold)',
           borderRadius: '12px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.8)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
