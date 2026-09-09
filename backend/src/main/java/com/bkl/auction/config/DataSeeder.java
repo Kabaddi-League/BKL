@@ -159,7 +159,7 @@ public class DataSeeder implements CommandLineRunner {
                         player.setPlayerType(playerType);
                         player.setPool(pool);
                         // base price might have changed, only update if not SOLD
-                        if (player.getAuctionStatus() == null || player.getAuctionStatus() == AuctionStatus.UNASSIGNED) {
+                        if (player.getAuctionStatus() == null || player.getAuctionStatus() == AuctionStatus.AVAILABLE) {
                             player.setBasePrice(pool.getBasePrice());
                         }
                     }
