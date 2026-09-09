@@ -93,7 +93,7 @@ export function App() {
       case '/teams':
         return <TeamsPage />;
       case '/players':
-        return <PlayersPage />;
+        return <PlayersPage user={user} />;
       case '/profile':
         return <PlayerProfilePage user={user} onUserUpdated={() => api.getMe().then(setUser)} />;
       case '/admin':

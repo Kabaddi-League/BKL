@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { PlayerCard } from '../components/PlayerCard';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
-export const PlayersPage = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+export const PlayersPage = ({ user }) => {
   const [players, setPlayers] = useState([]);
   const [poolFilter, setPoolFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
@@ -99,10 +95,10 @@ export const PlayersPage = () => {
                 <button 
                   onClick={async (e) => {
                     e.stopPropagation();
-                    if (window.confirm(Start auction for ?)) {
+                    if (window.confirm(`Start auction for ${selectedPlayer.user?.fullName}?`)) {
                       try {
                         await api.updateAuctionState({ state: 'READY', currentPlayerId: selectedPlayer.id });
-                        navigate('/arena');
+                        window.location.hash = '#/arena';
                       } catch (err) {
                         alert(err.message);
                       }
