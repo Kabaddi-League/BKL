@@ -12,102 +12,119 @@ export const LandingPage = () => {
   }, []);
 
   return (
-    <div className="page-container" style={{ maxWidth: '1300px', margin: '0 auto', padding: '2rem 1.5rem' }}>
-      {/* Hero Header */}
-      <div className="bkl-card bkl-card-3d hero-card" style={{
-        textAlign: 'center',
-        padding: '3.5rem 2rem',
-        marginBottom: '2.5rem',
-        background: 'linear-gradient(180deg, rgba(230, 43, 43, 0.2) 0%, rgba(16, 19, 26, 0.95) 100%)',
-        border: '1px solid rgba(245, 176, 20, 0.3)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '-50px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(245,176,20,0.15) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }}></div>
+    <div style={{ position: 'relative', minHeight: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      
+      {/* Dynamic Background */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0,
+        backgroundImage: 'url("https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2805&auto=format&fit=crop")',
+        backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.15, mixBlendMode: 'luminosity'
+      }}></div>
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1,
+        background: 'linear-gradient(90deg, rgba(8,9,12,1) 0%, rgba(8,9,12,0.8) 50%, rgba(8,9,12,0.9) 100%)'
+      }}></div>
 
-        <span style={{
-          background: 'var(--bkl-red)',
-          color: '#fff',
-          fontFamily: 'var(--bkl-font-display)',
-          fontSize: '1.2rem',
-          letterSpacing: '2px',
-          padding: '0.3rem 1.2rem',
-          borderRadius: '4px',
-          display: 'inline-block',
-          marginBottom: '1rem'
-        }}>
-          LIVE PLAYER AUCTION PLATFORM 2026
-        </span>
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: '1400px', margin: '0 auto', padding: '4rem 2rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          
+          {/* Left Text Content */}
+          <div style={{ flex: '1 1 600px', maxWidth: '700px' }}>
+            <div style={{ color: 'var(--bkl-red)', fontFamily: 'var(--bkl-font-display)', fontSize: '1.4rem', letterSpacing: '4px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              LIVE PLAYER AUCTION PLATFORM 2026
+            </div>
+            
+            <h1 style={{ fontSize: '7rem', color: '#fff', lineHeight: 0.9, margin: '0 0 1rem 0', fontFamily: 'var(--bkl-font-display)', fontStyle: 'italic', textTransform: 'uppercase', textShadow: '0 10px 30px rgba(0,0,0,0.8)' }}>
+              BACCHHA<br/>
+              <span style={{ background: 'linear-gradient(to right, #f5b014, #ffe066)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>KABADDI LEAGUE</span>
+            </h1>
 
-        <h1 className="hero-title" style={{
-          fontSize: '4.5rem',
-          color: '#fff',
-          lineHeight: 1,
-          margin: '0.5rem 0',
-          textShadow: '0 4px 20px rgba(0,0,0,0.8)'
-        }}>
-          BACCHHA KABADDI LEAGUE
-        </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem' }}>
+              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>THE BATTLE BEGINS</span>
+              <span style={{ color: 'var(--bkl-red)', fontWeight: 800 }}>—</span>
+              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>5 TEAMS</span>
+              <span style={{ color: '#fff' }}>•</span>
+              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>ONE AUCTION</span>
+              <span style={{ color: '#fff' }}>•</span>
+              <span style={{ color: '#fff', fontSize: '1.1rem', letterSpacing: '2px', textTransform: 'uppercase' }}>ONE CHAMPION</span>
+            </div>
 
-        <p className="hero-subtitle" style={{
-          fontSize: '1.5rem',
-          color: 'var(--bkl-gold)',
-          fontFamily: 'var(--bkl-font-display)',
-          letterSpacing: '2px',
-          marginBottom: '2rem'
-        }}>
-          THE BATTLE BEGINS — 5 TEAMS • ONE AUCTION • ONE CHAMPION
-        </p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+              <a href="#/login" style={{ 
+                background: 'linear-gradient(90deg, var(--bkl-red) 0%, #991b1b 100%)', 
+                color: '#fff', textDecoration: 'none', padding: '1rem 2.5rem', borderRadius: '4px', 
+                fontFamily: 'var(--bkl-font-display)', fontSize: '1.5rem', fontWeight: 600, letterSpacing: '1px',
+                display: 'flex', alignItems: 'center', gap: '0.8rem', boxShadow: '0 4px 20px rgba(230,43,43,0.4)',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}>
+                <span style={{ fontSize: '1.2rem' }}>🔨</span> CAPTAIN & PLAYER LOGIN <span style={{ marginLeft: '1rem' }}>›</span>
+              </a>
+              
+              <a href="#/auction" style={{ 
+                background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)',
+                color: '#fff', textDecoration: 'none', padding: '1rem 2.5rem', borderRadius: '4px', 
+                fontFamily: 'var(--bkl-font-display)', fontSize: '1.5rem', fontWeight: 600, letterSpacing: '1px',
+                display: 'flex', alignItems: 'center', gap: '0.8rem', border: '1px solid rgba(255,255,255,0.2)'
+              }}>
+                <span style={{ color: 'var(--bkl-red)' }}>((•))</span> WATCH LIVE ARENA
+              </a>
+            </div>
+          </div>
 
-        <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="#/login" className="bkl-btn bkl-btn-primary bkl-btn-large" style={{ fontSize: '1.5rem', padding: '0.75rem 2.2rem' }}>
-            🔑 CAPTAIN & PLAYER LOGIN
-          </a>
+          {/* Right Trophy Graphic */}
+          <div style={{ flex: '1 1 400px', display: 'flex', justifyContent: 'center', position: 'relative' }}>
+            <div style={{ 
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
+              width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(245,176,20,0.2) 0%, transparent 60%)', zIndex: 0 
+            }}></div>
+            <img src="https://api.dicebear.com/7.x/initials/svg?seed=BKL&backgroundColor=f5b014&textColor=000" alt="Trophy" style={{ width: '280px', height: '350px', objectFit: 'cover', clipPath: 'polygon(0 0, 100% 0, 80% 100%, 20% 100%)', borderBottom: '20px solid var(--bkl-gold)', zIndex: 1 }} />
+          </div>
+
         </div>
+
+        {/* Bottom Stats Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '6rem' }}>
+          
+          <div style={{ background: 'rgba(15,18,26,0.8)', border: '1px solid #333', borderBottom: '3px solid var(--bkl-red)', padding: '1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(230,43,43,0.1)', border: '1px solid var(--bkl-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bkl-red)', fontSize: '1.5rem' }}>👥</div>
+            <div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.8rem', letterSpacing: '1px', fontWeight: 600 }}>REGISTERED USERS</div>
+              <div style={{ color: '#fff', fontSize: '2.8rem', fontFamily: 'var(--bkl-font-display)', lineHeight: 1 }}>{stats?.totalRegistered || '58'}</div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.75rem' }}>CAPTAINS, PLAYERS & OFFICIALS</div>
+            </div>
+          </div>
+
+          <div style={{ background: 'rgba(15,18,26,0.8)', border: '1px solid #333', borderBottom: '3px solid #3b82f6', padding: '1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(59,130,246,0.1)', border: '1px solid #3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', fontSize: '1.5rem' }}>🛡️</div>
+            <div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.8rem', letterSpacing: '1px', fontWeight: 600 }}>TEAMS</div>
+              <div style={{ color: '#fff', fontSize: '2.8rem', fontFamily: 'var(--bkl-font-display)', lineHeight: 1 }}>5</div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.75rem' }}>READY TO COMPETE</div>
+            </div>
+          </div>
+
+          <div style={{ background: 'rgba(15,18,26,0.8)', border: '1px solid #333', borderBottom: '3px solid var(--bkl-gold)', padding: '1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(245,176,20,0.1)', border: '1px solid var(--bkl-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bkl-gold)', fontSize: '1.5rem' }}>🪙</div>
+            <div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.8rem', letterSpacing: '1px', fontWeight: 600 }}>TEAM BUDGET</div>
+              <div style={{ color: 'var(--bkl-gold)', fontSize: '2.8rem', fontFamily: 'var(--bkl-font-display)', lineHeight: 1 }}>₹50,000</div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.75rem' }}>TOTAL AUCTION POOL</div>
+            </div>
+          </div>
+
+          <div style={{ background: 'rgba(15,18,26,0.8)', border: '1px solid #333', borderBottom: '3px solid var(--bkl-red)', padding: '1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(230,43,43,0.1)', border: '1px solid var(--bkl-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bkl-red)', fontSize: '1.5rem' }}>📈</div>
+            <div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.8rem', letterSpacing: '1px', fontWeight: 600 }}>BID INCREMENT</div>
+              <div style={{ color: 'var(--bkl-red)', fontSize: '2.8rem', fontFamily: 'var(--bkl-font-display)', lineHeight: 1 }}>+₹200</div>
+              <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.75rem' }}>MINIMUM BID STEP</div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
-
-      {/* Tournament Stats Bar */}
-      <div className="stats-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1.25rem',
-        marginBottom: '3rem'
-      }}>
-        <div className="bkl-card" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--bkl-text-muted)', textTransform: 'uppercase' }}>REGISTERED USERS</div>
-          <div style={{ fontSize: '2.5rem', fontFamily: 'var(--bkl-font-display)', color: 'var(--bkl-gold)' }}>
-            {stats?.totalRegistered || '50+'}
-          </div>
-        </div>
-        <div className="bkl-card" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--bkl-text-muted)', textTransform: 'uppercase' }}>TEAMS</div>
-          <div style={{ fontSize: '2.5rem', fontFamily: 'var(--bkl-font-display)', color: '#fff' }}>
-            5
-          </div>
-        </div>
-        <div className="bkl-card" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--bkl-text-muted)', textTransform: 'uppercase' }}>TEAM BUDGET</div>
-          <div style={{ fontSize: '2.5rem', fontFamily: 'var(--bkl-font-display)', color: 'var(--bkl-gold)' }}>
-            ₹50,000
-          </div>
-        </div>
-        <div className="bkl-card" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--bkl-text-muted)', textTransform: 'uppercase' }}>BID INCREMENT</div>
-          <div style={{ fontSize: '2.5rem', fontFamily: 'var(--bkl-font-display)', color: 'var(--bkl-red)' }}>
-            +₹200
-          </div>
-        </div>
-      </div>
-
     </div>
   );
 };

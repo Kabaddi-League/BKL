@@ -9,6 +9,7 @@ import { BidHistory } from '../components/BidHistory';
 
 import { ConfirmModal } from '../components/ConfirmModal';
 import { KeyboardShortcutsModal } from '../components/KeyboardShortcutsModal';
+import { Pause, Play, Gavel, X, ChevronsRight, RotateCcw, Coins } from 'lucide-react';
 
 export const LiveAuctionArena = ({ user }) => {
   const [auctionState, setAuctionState] = useState(null);
@@ -476,12 +477,12 @@ export const LiveAuctionArena = ({ user }) => {
           gap: '1rem'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'var(--bkl-font-display)', fontSize: '1.2rem', color: 'var(--bkl-gold)' }}>
-              🔨 AUCTIONEER CONTROLS
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'var(--bkl-font-display)', fontSize: '1.2rem', color: 'var(--bkl-gold)' }}>
+              <Gavel size={20} /> AUCTIONEER CONTROLS
             </span>
 
             {/* Select Team & Custom Bid inputs */}
-            <select value={selectedTeamForBid} onChange={(e) => setSelectedTeamForBid(e.target.value)} style={{ padding: '0.5rem 1rem', background: '#000', color: '#fff', border: '1px solid var(--bkl-gold)', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 600 }}>
+            <select value={selectedTeamForBid} onChange={(e) => setSelectedTeamForBid(e.target.value)} style={{ padding: '0.4rem 0.8rem', background: '#08090c', color: '#fff', border: '1px solid #333', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 600 }}>
               <option value="">-- SELECT TEAM --</option>
               {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
@@ -490,41 +491,39 @@ export const LiveAuctionArena = ({ user }) => {
               placeholder="Custom Bid (₹)" 
               value={bidAmountInput} 
               onChange={(e) => setBidAmountInput(e.target.value)}
-              style={{ width: '130px', padding: '0.5rem 1rem', background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', fontSize: '0.9rem' }}
+              style={{ width: '130px', padding: '0.4rem 0.8rem', background: '#08090c', color: '#fff', border: '1px solid #333', borderRadius: '4px', fontSize: '0.9rem' }}
             />
 
             {/* Auction Action Buttons */}
             {stateStr === 'LIVE' ? (
-              <button onClick={handlePause} className="bkl-btn" style={{ borderColor: 'var(--bkl-green)', color: 'var(--bkl-green)', padding: '0.5rem 1.5rem' }}>⏸️ PAUSE</button>
+              <button onClick={handlePause} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #2ecc71', color: '#2ecc71', background: '#08090c', padding: '0.4rem 1.2rem', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}><Pause size={16} /> PAUSE</button>
             ) : (
-              <button onClick={handleResume} className="bkl-btn" style={{ borderColor: 'var(--bkl-green)', color: 'var(--bkl-green)', padding: '0.5rem 1.5rem' }}>▶️ RESUME</button>
+              <button onClick={handleResume} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #2ecc71', color: '#2ecc71', background: '#08090c', padding: '0.4rem 1.2rem', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}><Play size={16} /> RESUME</button>
             )}
 
             <button 
               onClick={() => setShowConfirmSell(true)} 
               disabled={!currentPlayer || !leadingTeam}
-              className={`bkl-btn ${(!currentPlayer || !leadingTeam) ? 'bkl-btn-disabled' : ''}`}
-              style={{ background: 'var(--bkl-red)', color: '#fff', border: 'none', padding: '0.5rem 1.5rem' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bkl-red)', color: '#fff', border: 'none', padding: '0.4rem 1.2rem', borderRadius: '4px', fontWeight: 600, cursor: (!currentPlayer || !leadingTeam) ? 'not-allowed' : 'pointer', opacity: (!currentPlayer || !leadingTeam) ? 0.5 : 1 }}
             >
-              🔨 SELL PLAYER
+              <Gavel size={16} /> SELL PLAYER
             </button>
 
             <button 
               onClick={() => setShowConfirmUnsold(true)}
               disabled={!currentPlayer}
-              className={`bkl-btn ${!currentPlayer ? 'bkl-btn-disabled' : ''}`}
-              style={{ borderColor: 'var(--bkl-red)', color: '#ff6b6b', padding: '0.5rem 1.5rem', background: 'transparent' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid var(--bkl-red)', color: '#ff6b6b', padding: '0.4rem 1.2rem', background: '#08090c', borderRadius: '4px', fontWeight: 600, cursor: !currentPlayer ? 'not-allowed' : 'pointer', opacity: !currentPlayer ? 0.5 : 1 }}
             >
-              ❌ MARK UNSOLD
+              <X size={16} /> MARK UNSOLD
             </button>
 
-            <button onClick={handleNextPlayer} className="bkl-btn" style={{ background: '#1e3a8a', color: '#fff', border: '1px solid #3b82f6', padding: '0.5rem 1.5rem' }}>
-              ⏭️ NEXT PLAYER
+            <button onClick={handleNextPlayer} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#1e3a8a', color: '#fff', border: 'none', padding: '0.4rem 1.2rem', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}>
+              <ChevronsRight size={16} /> NEXT PLAYER
             </button>
 
             {currentPlayer && (
-              <button onClick={() => handleReopenPlayer(currentPlayer.id)} className="bkl-btn" style={{ borderColor: '#3b82f6', color: '#60a5fa', padding: '0.5rem 1.5rem', background: 'transparent' }}>
-                🔄 REOPEN
+              <button onClick={() => handleReopenPlayer(currentPlayer.id)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', border: '1px solid #3b82f6', color: '#60a5fa', padding: '0.4rem 1.2rem', background: '#08090c', borderRadius: '4px', fontWeight: 600, cursor: 'pointer' }}>
+                <RotateCcw size={16} /> REOPEN
               </button>
             )}
           </div>
@@ -538,10 +537,9 @@ export const LiveAuctionArena = ({ user }) => {
               }
             }}
             disabled={!selectedTeamForBid || !currentPlayer}
-            className="bkl-btn bkl-btn-gold"
-            style={{ fontSize: '1rem', padding: '0.5rem 1.5rem', fontWeight: 800 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bkl-gold)', color: '#000', border: 'none', padding: '0.4rem 1.5rem', borderRadius: '4px', fontWeight: 800, cursor: (!selectedTeamForBid || !currentPlayer) ? 'not-allowed' : 'pointer', opacity: (!selectedTeamForBid || !currentPlayer) ? 0.5 : 1 }}
           >
-            🪙 BID FOR TEAM
+            <Coins size={18} /> BID FOR TEAM
           </button>
         </div>
       )}
