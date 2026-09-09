@@ -225,35 +225,40 @@ export const LiveAuctionArena = ({ user }) => {
 
 
 
+      {/* TOP ROW: COMPACT TEAMS & BUDGETS */}
+      <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', marginBottom: '1.25rem' }}>
+        {teams.map((t) => (
+          <div key={t.id} style={{ flex: '1 1 0', minWidth: '180px' }}>
+            <TeamCard 
+              team={t} 
+              isLeading={leadingTeam && leadingTeam.id === t.id} 
+              hideBudget={!user}
+              compact={true}
+            />
+          </div>
+        ))}
+      </div>
+
         {/* Main 3-Column Arena Layout */}
       <div className="arena-grid" style={{
         gap: '1.25rem',
         minHeight: '600px'
       }}>
 
-        {/* LEFT COLUMN: 5 TEAMS & BUDGETS */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h3 style={{ fontSize: '1.3rem', color: 'var(--bkl-gold)', margin: 0 }}>
-            TEAMS & BUDGETS
-          </h3>
-
-          {teams.map((t) => (
-            <TeamCard 
-              key={t.id} 
-              team={t} 
-              isLeading={leadingTeam && leadingTeam.id === t.id} 
-              hideBudget={!user}
-            />
-          ))}
-
+        {/* LEFT COLUMN: VIDEO CHAT */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%' }}>
           {/* Video Conference Room */}
-          {stateStr !== 'NOT_STARTED' && (
-            <div style={{ width: '100%', height: '350px', marginTop: '1rem', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--bkl-gold)', background: '#000' }}>
+          {stateStr !== 'NOT_STARTED' ? (
+            <div style={{ width: '100%', flex: 1, minHeight: '400px', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--bkl-gold)', background: '#000' }}>
               <iframe
                 src={`https://vdo.ninja/?room=bkl_auction_2026`}
                 allow="camera; microphone; fullscreen; display-capture"
                 style={{ width: '100%', height: '100%', border: 'none' }}
               ></iframe>
+            </div>
+          ) : (
+            <div style={{ width: '100%', flex: 1, minHeight: '400px', borderRadius: '12px', border: '2px dashed var(--bkl-dark-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bkl-text-muted)', textAlign: 'center', padding: '1rem' }}>
+              Video Chat available<br/>when auction goes LIVE
             </div>
           )}
         </div>

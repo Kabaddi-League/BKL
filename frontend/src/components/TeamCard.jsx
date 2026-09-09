@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const TeamCard = ({ team, isLeading = false, hideBudget = false, onSelect }) => {
+export const TeamCard = ({ team, isLeading = false, hideBudget = false, onSelect, compact = false }) => {
   if (!team) return null;
 
   const initialBudget = team.initialBudget || 50000;
@@ -25,38 +25,40 @@ export const TeamCard = ({ team, isLeading = false, hideBudget = false, onSelect
       onClick={() => onSelect && onSelect(team)}
       style={{
         cursor: onSelect ? 'pointer' : 'default',
-        padding: '1rem',
+        padding: compact ? '0.6rem' : '1rem',
         borderLeft: isLeading ? '4px solid var(--bkl-gold)' : '4px solid var(--bkl-dark-border)'
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: compact ? '0.5rem' : '0.75rem' }}>
           <img 
             src={team.logoUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${team.name}&backgroundColor=0f172a,dc2626&textColor=ffffff`}
             alt={team.name}
-            style={{ width: '45px', height: '45px', borderRadius: '50%', objectFit: 'cover', border: isLeading ? '2px solid var(--bkl-gold)' : '2px solid var(--bkl-dark-border)' }}
+            style={{ width: compact ? '32px' : '45px', height: compact ? '32px' : '45px', borderRadius: '50%', objectFit: 'cover', border: isLeading ? '2px solid var(--bkl-gold)' : '2px solid var(--bkl-dark-border)' }}
           />
           <div>
             <h3 style={{
-              fontSize: '1.35rem',
+              fontSize: compact ? '1rem' : '1.35rem',
               color: isLeading ? 'var(--bkl-gold)' : '#fff',
               fontFamily: 'var(--bkl-font-display)',
               margin: 0
             }}>
               {team.name}
             </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--bkl-text-muted)', marginTop: '0.1rem' }}>
-              <img 
-                src={team.captain?.profileImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${team.captain?.fullName || 'Unassigned'}`}
-                alt="Captain"
-                style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }}
-              />
-              <span style={{ color: '#fff', fontWeight: 600 }}>{team.captain ? team.captain.fullName : 'Unassigned'}</span>
-            </div>
+            {!compact && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: 'var(--bkl-text-muted)', marginTop: '0.1rem' }}>
+                <img 
+                  src={team.captain?.profileImageUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${team.captain?.fullName || 'Unassigned'}`}
+                  alt="Captain"
+                  style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+                <span style={{ color: '#fff', fontWeight: 600 }}>{team.captain ? team.captain.fullName : 'Unassigned'}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {isLeading && (
+        {isLeading && !compact && (
           <span style={{
             background: 'var(--bkl-gold)',
             color: '#000',
@@ -67,23 +69,23 @@ export const TeamCard = ({ team, isLeading = false, hideBudget = false, onSelect
             fontFamily: 'var(--bkl-font-display)',
             letterSpacing: '1px'
           }}>
-            HIGHEST BIDDER
+            HIGHEST
           </span>
         )}
       </div>
 
       {/* Budget Progress Bar */}
       {!hideBudget && (
-        <div style={{ marginTop: '0.75rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-          <span style={{ color: 'var(--bkl-text-muted)' }}>REMAINING BUDGET</span>
-          <span style={{ color: budgetColor, fontWeight: 700, fontFamily: 'var(--bkl-font-display)', fontSize: '1.1rem' }}>
+        <div style={{ marginTop: compact ? '0.25rem' : '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: compact ? '0.7rem' : '0.85rem', marginBottom: '0.25rem' }}>
+          <span style={{ color: 'var(--bkl-text-muted)' }}>BUDGET</span>
+          <span style={{ color: budgetColor, fontWeight: 700, fontFamily: 'var(--bkl-font-display)', fontSize: compact ? '0.9rem' : '1.1rem' }}>
             ₹{remainingBudget.toLocaleString()}
           </span>
         </div>
 
         <div style={{
-          height: '8px',
+          height: compact ? '4px' : '8px',
           width: '100%',
           background: 'rgba(255,255,255,0.08)',
           borderRadius: '4px',
@@ -98,9 +100,9 @@ export const TeamCard = ({ team, isLeading = false, hideBudget = false, onSelect
           }}></div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--bkl-text-muted)', marginTop: '0.35rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: compact ? '0.65rem' : '0.75rem', color: 'var(--bkl-text-muted)', marginTop: '0.35rem' }}>
           <span>SPENT: <strong style={{ color: '#fff' }}>₹{totalSpent.toLocaleString()}</strong></span>
-          <span style={{ color: budgetColor, fontWeight: 700 }}>STATUS: {budgetStatus}</span>
+          {!compact && <span style={{ color: budgetColor, fontWeight: 700 }}>STATUS: {budgetStatus}</span>}
         </div>
       </div>
       )}
