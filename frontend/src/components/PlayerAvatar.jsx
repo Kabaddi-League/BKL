@@ -15,7 +15,8 @@ export const PlayerAvatar = ({ src, name, size = 120, borderGlow = 'none' }) => 
   };
 
   const serverUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-  const fullSrc = src && src.startsWith('/') ? `${serverUrl}${src}` : src;
+  const baseUrl = serverUrl.replace(/\/api$/, '');
+  const fullSrc = src && src.startsWith('/') ? `${baseUrl}${src}` : src;
 
   return (
     <div 
