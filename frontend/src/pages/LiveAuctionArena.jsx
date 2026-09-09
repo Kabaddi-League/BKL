@@ -227,7 +227,7 @@ export const LiveAuctionArena = ({ user }) => {
         {stateStr !== 'NOT_STARTED' && (
           <div style={{ width: '100%', height: '350px', marginBottom: '1.25rem', borderRadius: '12px', overflow: 'hidden', border: '2px solid var(--bkl-gold)', background: '#000' }}>
             <iframe
-              src={`https://meet.ffmuc.net/BKL-Auction-2026#config.prejoinPageEnabled=false&userInfo.displayName=${encodeURIComponent(user?.fullName || 'User')}`}
+              src={`https://meet.jit.si/BKL-Auction-2026#config.prejoinPageEnabled=false&userInfo.displayName=${encodeURIComponent(user?.fullName || 'User')}`}
               allow="camera; microphone; fullscreen; display-capture"
               style={{ width: '100%', height: '100%', border: 'none' }}
             ></iframe>
