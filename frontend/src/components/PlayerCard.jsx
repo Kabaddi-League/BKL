@@ -117,6 +117,16 @@ export const PlayerCard = ({ player, onSelect, actionLabel = 'VIEW' }) => {
               {player.user?.role === 'CAPTAIN' || player.soldPrice === 0 ? 'CAPTAIN' : `₹${player.soldPrice?.toLocaleString()}`}
             </div>
           </div>
+        ) : isUnsold ? (
+          <div>
+            <div style={{ fontSize: '0.75rem', color: '#ff6b6b', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>STATUS</div>
+            <div style={{ color: 'var(--bkl-red)', fontFamily: 'var(--bkl-font-display)', fontSize: '1.3rem', fontWeight: 700 }}>
+              UNSOLD
+            </div>
+            <div style={{ color: 'var(--bkl-text-muted)', fontSize: '0.95rem', fontWeight: 600, fontFamily: 'var(--bkl-font-display)' }}>
+              TEAM: — &nbsp;|&nbsp; PRICE: —
+            </div>
+          </div>
         ) : (
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--bkl-text-muted)', textTransform: 'uppercase' }}>BASE PRICE</div>

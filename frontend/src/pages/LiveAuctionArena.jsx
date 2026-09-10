@@ -301,11 +301,26 @@ export const LiveAuctionArena = ({ user }) => {
               borderRadius: '4px',
               fontWeight: 700
             }}>
-              {stateStr === 'LIVE' ? '🔴 NOW ON AUCTION' : stateStr === 'PAUSED' ? '⏸️ AUCTION PAUSED' : stateStr}
+              {stateStr === 'LIVE' ? '🔴 NOW ON AUCTION' : stateStr === 'PAUSED' ? '⏸️ AUCTION PAUSED' : stateStr === 'COMPLETED' ? '🏆 AUCTION COMPLETED' : stateStr}
             </span>
-
-            
           </div>
+
+          {stateStr === 'COMPLETED' && (
+            <div style={{
+              width: '100%',
+              padding: '0.75rem',
+              background: 'rgba(46, 204, 113, 0.15)',
+              border: '1px solid #2ecc71',
+              borderRadius: '6px',
+              color: '#2ecc71',
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              marginBottom: '1.25rem',
+              fontFamily: 'var(--bkl-font-display)'
+            }}>
+              🏁 ALL PLAYERS IN THE AUCTION QUEUE HAVE BEEN PROCESSED
+            </div>
+          )}
 
           {/* Central Circular Player Display */}
           {currentPlayer ? (
