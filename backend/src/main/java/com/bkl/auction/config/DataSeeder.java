@@ -170,14 +170,33 @@ public class DataSeeder implements CommandLineRunner {
             // Sort players: Pool A -> B -> C, then Alphabetical by Name
             playersToSave.sort(Comparator.comparing((Player p) -> p.getPool().name())
                     .thenComparing(p -> p.getUser().getFullName().toLowerCase()));
+
+            // Move Satyam Raj to the very end of the auction list
+            Player satyam = null;
+            for (Player p : playersToSave) {
+                if (p.getUser() != null && "satyamraj9258@gmail.com".equalsIgnoreCase(p.getUser().getEmail())) {
+                    satyam = p;
+                    break;
+                }
+            }
+            if (satyam == null) {
+                for (Player p : playersToSave) {
+                    if (p.getUser() != null && p.getUser().getFullName().toLowerCase().contains("satyam raj")) {
+                        satyam = p;
+                        break;
+                    }
+                }
+            }
+            if (satyam != null) {
+                playersToSave.remove(satyam);
+                playersToSave.add(satyam);
+            }
                     
             // Assign auction order and save
             int orderCounter = 1;
             for (Player p : playersToSave) {
-                // Keep existing order if already assigned, otherwise set it
-                if (p.getAuctionOrder() == null || p.getAuctionOrder() == 0) {
-                    p.setAuctionOrder(orderCounter);
-                }
+                // Force overwrite to ensure Satyam is last
+                p.setAuctionOrder(orderCounter);
                 orderCounter++;
                 playerRepository.save(p);
             }
