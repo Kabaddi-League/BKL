@@ -396,16 +396,35 @@ public class AuctionService {
                     throw new IllegalStateException("No player selected to mark unsold.");
                 }
 
-                Player player = playerRepository.findByIdWithLock(currentPlayer.getId())
-                        .orElseThrow(() -> new IllegalStateException("Player not found: " + currentPlayer.getId()));
+                Player player;
+                if (entityManager != null) {
+                    player = entityManager.find(Player.class, currentPlayer.getId(), LockModeType.PESSIMISTIC_WRITE);
+                    if (player != null) {
+                        entityManager.refresh(player, LockModeType.PESSIMISTIC_WRITE);
+                    }
+                } else {
+                    player = playerRepository.findByIdWithLock(currentPlayer.getId()).orElse(null);
+                }
+                if (player == null) {
+                    throw new IllegalStateException("Player not found: " + currentPlayer.getId());
+                }
 
                 if (player.getAuctionStatus() != AuctionStatus.ON_AUCTION) {
                     throw new IllegalStateException("Cannot mark unsold. Player status is " + player.getAuctionStatus());
                 }
 
+                // Invalidate any accidental purchase record if one exists
+                purchaseRepository.findByPlayerIdAndIsVoidFalse(player.getId()).ifPresent(p -> {
+                    p.setIsVoid(true);
+                    purchaseRepository.save(p);
+                });
+
                 player.setAuctionStatus(AuctionStatus.UNSOLD);
+                player.setCurrentTeam(null);
+                player.setSoldPrice(0);
                 playerRepository.save(player);
 
+                auction.setHighestBidTeam(null);
                 auction.setState(AuctionState.UNSOLD);
                 auctionRepository.save(auction);
 

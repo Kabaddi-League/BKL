@@ -71,8 +71,8 @@ public class AuctionConcurrencyTest {
         testPlayer.setSoldPrice(null);
         playerRepository.save(testPlayer);
 
-        // Delete any existing purchases and bids for clean test state
-        purchaseRepository.findByPlayerId(testPlayer.getId()).ifPresent(purchaseRepository::delete);
+        // Delete all existing purchases and bids for clean test state
+        purchaseRepository.deleteAll();
         bidRepository.deleteAll();
     }
 
@@ -296,5 +296,63 @@ public class AuctionConcurrencyTest {
         Auction auction = auctionService.getActiveAuction();
         assertTrue(auction.getCurrentBid() >= 400, "Current bid must be at least 400");
         assertNotNull(auction.getHighestBidTeam(), "Must have a winning team");
+    }
+
+    @Test
+    @DisplayName("TEST 7: Simultaneous SELL and UNSOLD requests (Exclusive state resolution)")
+    public void testSimultaneousSoldAndUnsoldRequests() throws Exception {
+        auctionService.startAuctionForPlayer(testPlayer.getId(), admin);
+        auctionService.placeBid(captain1, team1.getId(), 400);
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicInteger sellSuccessCount = new AtomicInteger(0);
+        AtomicInteger unsoldSuccessCount = new AtomicInteger(0);
+
+        Callable<Void> sellTask = () -> {
+            latch.await();
+            try {
+                auctionService.sellCurrentPlayer(admin);
+                sellSuccessCount.incrementAndGet();
+            } catch (Exception ignored) {}
+            return null;
+        };
+
+        Callable<Void> unsoldTask = () -> {
+            latch.await();
+            try {
+                auctionService.markPlayerUnsold(auctioneer);
+                unsoldSuccessCount.incrementAndGet();
+            } catch (Exception ignored) {}
+            return null;
+        };
+
+        Future<Void> f1 = executor.submit(sellTask);
+        Future<Void> f2 = executor.submit(unsoldTask);
+
+        latch.countDown();
+        f1.get();
+        f2.get();
+        executor.shutdown();
+
+        // Exactly one must succeed
+        assertEquals(1, sellSuccessCount.get() + unsoldSuccessCount.get(),
+                "Exactly one operation (either SELL or UNSOLD) must succeed, never both");
+
+        Player p = playerRepository.findById(testPlayer.getId()).orElseThrow();
+        Team t1 = teamRepository.findById(team1.getId()).orElseThrow();
+        List<Purchase> purchases = purchaseRepository.findByTeamIdAndIsVoidFalseOrderBySoldAtDesc(team1.getId());
+
+        if (sellSuccessCount.get() == 1) {
+            assertEquals(AuctionStatus.SOLD, p.getAuctionStatus());
+            assertEquals(49600, t1.getRemainingBudget());
+            assertEquals(400, t1.getTotalSpent());
+            assertEquals(1, purchases.size());
+        } else {
+            assertEquals(AuctionStatus.UNSOLD, p.getAuctionStatus());
+            assertEquals(50000, t1.getRemainingBudget());
+            assertEquals(0, t1.getTotalSpent());
+            assertEquals(0, purchases.size());
+        }
     }
 }
