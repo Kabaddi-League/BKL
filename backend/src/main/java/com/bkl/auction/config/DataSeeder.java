@@ -167,9 +167,14 @@ public class DataSeeder implements CommandLineRunner {
                 }
             }
             
-            // Sort players: Pool A -> B -> C, then Alphabetical by Name
-            playersToSave.sort(Comparator.comparing((Player p) -> p.getPool().name())
-                    .thenComparing(p -> p.getUser().getFullName().toLowerCase()));
+            // Sort players: Captains -> Pool A -> B -> C, then Alphabetical by Name
+            playersToSave.sort(Comparator.comparing((Player p) -> {
+                if (p.getUser() != null && p.getUser().getRole() == Role.CAPTAIN) return 0;
+                if (p.getPool() == Pool.POOL_A) return 1;
+                if (p.getPool() == Pool.POOL_B) return 2;
+                if (p.getPool() == Pool.POOL_C) return 3;
+                return 4;
+            }).thenComparing(p -> p.getUser().getFullName().toLowerCase()));
 
             // Move Satyam Raj to the very end of the auction list
             Player satyam = null;
