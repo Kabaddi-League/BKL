@@ -574,6 +574,167 @@ public class AuctionService {
         }
     }
 
+    public Map<String, Object> executeFinalUnsoldAllocation(User admin, boolean dryRun) {
+        synchronized (AUCTION_LOCK) {
+            return transactionTemplate.execute(status -> {
+                // 1. Lock Auction row
+                Auction auction = getActiveAuctionWithLock();
+
+                // 2. Lock all 5 teams with PESSIMISTIC_WRITE
+                Team ironLobby = teamRepository.findByIdWithLock(21L)
+                        .orElseThrow(() -> new IllegalStateException("Iron Lobby team (21) not found"));
+                Team velocity = teamRepository.findByIdWithLock(22L)
+                        .orElseThrow(() -> new IllegalStateException("Velocity team (22) not found"));
+                Team chainBreaker = teamRepository.findByIdWithLock(23L)
+                        .orElseThrow(() -> new IllegalStateException("Chain-Breaker team (23) not found"));
+                Team noMercy = teamRepository.findByIdWithLock(24L)
+                        .orElseThrow(() -> new IllegalStateException("No Mercy team (24) not found"));
+                Team apexTitans = teamRepository.findByIdWithLock(25L)
+                        .orElseThrow(() -> new IllegalStateException("Apex Titans team (25) not found"));
+
+                // 3. Pre-check live team budgets
+                if (chainBreaker.getRemainingBudget() != 5800) {
+                    throw new IllegalStateException("Aborting: Chain-Breaker live remaining budget is ₹" 
+                            + chainBreaker.getRemainingBudget() + ", expected ₹5,800");
+                }
+                if (velocity.getRemainingBudget() != 0 || velocity.getTotalSpent() != 50000) {
+                    throw new IllegalStateException("Aborting: Velocity live state invalid: spent=" 
+                            + velocity.getTotalSpent() + ", remaining=" + velocity.getRemainingBudget());
+                }
+                if (ironLobby.getRemainingBudget() != 10700 || ironLobby.getTotalSpent() != 39300) {
+                    throw new IllegalStateException("Aborting: Iron Lobby live state invalid: spent=" 
+                            + ironLobby.getTotalSpent() + ", remaining=" + ironLobby.getRemainingBudget());
+                }
+                if (noMercy.getRemainingBudget() != 6100 || noMercy.getTotalSpent() != 43900) {
+                    throw new IllegalStateException("Aborting: No Mercy live state invalid: spent=" 
+                            + noMercy.getTotalSpent() + ", remaining=" + noMercy.getRemainingBudget());
+                }
+                if (apexTitans.getRemainingBudget() != 1500 || apexTitans.getTotalSpent() != 48500) {
+                    throw new IllegalStateException("Aborting: Apex Titans live state invalid: spent=" 
+                            + apexTitans.getTotalSpent() + ", remaining=" + apexTitans.getRemainingBudget());
+                }
+
+                // 4. Dynamic Harshit Kumar Price calculation from live Chain-Breaker wallet
+                int cbCurrentRemaining = chainBreaker.getRemainingBudget();
+                int amanPrice = 1700;
+                if (cbCurrentRemaining < amanPrice) {
+                    throw new IllegalStateException("Chain-Breaker budget insufficient for Aman Kumar: ₹" + cbCurrentRemaining);
+                }
+                int harshitPrice = cbCurrentRemaining - amanPrice; // 5800 - 1700 = 4100
+                if (harshitPrice != 4100) {
+                    throw new IllegalStateException("Aborting: Calculated Harshit Kumar price is ₹" + harshitPrice + ", expected ₹4,100");
+                }
+
+                record TargetAllocation(Long playerId, Team targetTeam, Integer price, String playerName) {}
+
+                List<TargetAllocation> targets = List.of(
+                    new TargetAllocation(149L, noMercy, 400, "Abhishek Kumar Singh"),
+                    new TargetAllocation(155L, chainBreaker, 1700, "Aman kumar"),
+                    new TargetAllocation(168L, chainBreaker, harshitPrice, "Harshit Kumar"),
+                    new TargetAllocation(157L, ironLobby, 1700, "Ansit Kumar"),
+                    new TargetAllocation(162L, ironLobby, 6000, "Bhargav Dwivedi"),
+                    new TargetAllocation(163L, ironLobby, 1000, "Bikash Kumar Shaw"),
+                    new TargetAllocation(183L, apexTitans, 1500, "Vijayesh singh"),
+                    new TargetAllocation(161L, velocity, 0, "Aryan Raj"),
+                    new TargetAllocation(159L, velocity, 0, "Aqib Jawed Khan"),
+                    new TargetAllocation(184L, velocity, 0, "ZUHAIR ARSHAD")
+                );
+
+                List<Map<String, Object>> allocationResults = new ArrayList<>();
+                for (TargetAllocation alloc : targets) {
+                    Player player = playerRepository.findByIdWithLock(alloc.playerId())
+                            .orElseThrow(() -> new IllegalStateException("Player not found: " + alloc.playerId()));
+
+                    if (player.getAuctionStatus() != AuctionStatus.UNSOLD) {
+                        throw new IllegalStateException("Player " + alloc.playerId() + " (" + player.getUser().getFullName() 
+                                + ") is not UNSOLD (status: " + player.getAuctionStatus() + ")");
+                    }
+
+                    if (purchaseRepository.findByPlayerIdAndIsVoidFalse(alloc.playerId()).isPresent()) {
+                        throw new IllegalStateException("Active purchase already exists for player " + alloc.playerId());
+                    }
+
+                    Purchase purchase = new Purchase(player, alloc.targetTeam(), alloc.price(), auction);
+                    purchase.setIsVoid(false);
+                    purchase.setSoldAt(LocalDateTime.now());
+                    purchase = purchaseRepository.save(purchase);
+
+                    player.setAuctionStatus(AuctionStatus.SOLD);
+                    player.setCurrentTeam(alloc.targetTeam());
+                    player.setSoldPrice(alloc.price());
+                    player.setUpdatedAt(LocalDateTime.now());
+                    playerRepository.save(player);
+
+                    if (!dryRun) {
+                        auditService.logAction(admin, "MANUAL_FINAL_ALLOCATION", player.getUser().getFullName(),
+                                "Team: " + alloc.targetTeam().getName() + " | Price: ₹" + alloc.price());
+                    }
+
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("playerId", player.getId());
+                    row.put("playerName", player.getUser().getFullName());
+                    row.put("teamName", alloc.targetTeam().getName());
+                    row.put("soldPrice", alloc.price());
+                    row.put("status", "SOLD");
+                    allocationResults.add(row);
+                }
+
+                // Flush changes to ensure purchaseRepository queries see new records in transaction
+                if (entityManager != null) {
+                    entityManager.flush();
+                }
+
+                // Authoritative recalculation of team financials from purchase ledger
+                List<Team> allTeams = List.of(ironLobby, velocity, chainBreaker, noMercy, apexTitans);
+                for (Team team : allTeams) {
+                    List<Purchase> activePurchases = purchaseRepository.findByTeamIdAndIsVoidFalseOrderBySoldAtDesc(team.getId());
+                    int purchaseSum = activePurchases.stream().mapToInt(Purchase::getSoldPrice).sum();
+
+                    int newTotalSpent = purchaseSum;
+                    int newRemainingBudget = team.getInitialBudget() - newTotalSpent;
+
+                    if (newRemainingBudget < 0) {
+                        throw new IllegalStateException("Budget invariant violation: Team " + team.getName() 
+                                + " has negative remaining budget: ₹" + newRemainingBudget);
+                    }
+
+                    team.setTotalSpent(newTotalSpent);
+                    team.setRemainingBudget(newRemainingBudget);
+                    teamRepository.save(team);
+                }
+
+                // Final invariant assertions
+                if (ironLobby.getTotalSpent() != 48000 || ironLobby.getRemainingBudget() != 2000) {
+                    throw new IllegalStateException("Invariant failed for Iron Lobby: spent=" + ironLobby.getTotalSpent() + ", rem=" + ironLobby.getRemainingBudget());
+                }
+                if (velocity.getTotalSpent() != 50000 || velocity.getRemainingBudget() != 0) {
+                    throw new IllegalStateException("Invariant failed for Velocity: spent=" + velocity.getTotalSpent() + ", rem=" + velocity.getRemainingBudget());
+                }
+                if (chainBreaker.getTotalSpent() != 50000 || chainBreaker.getRemainingBudget() != 0) {
+                    throw new IllegalStateException("Invariant failed for Chain-Breaker: spent=" + chainBreaker.getTotalSpent() + ", rem=" + chainBreaker.getRemainingBudget());
+                }
+                if (noMercy.getTotalSpent() != 44300 || noMercy.getRemainingBudget() != 5700) {
+                    throw new IllegalStateException("Invariant failed for No Mercy: spent=" + noMercy.getTotalSpent() + ", rem=" + noMercy.getRemainingBudget());
+                }
+                if (apexTitans.getTotalSpent() != 50000 || apexTitans.getRemainingBudget() != 0) {
+                    throw new IllegalStateException("Invariant failed for Apex Titans: spent=" + apexTitans.getTotalSpent() + ", rem=" + apexTitans.getRemainingBudget());
+                }
+
+                if (dryRun) {
+                    status.setRollbackOnly();
+                } else {
+                    publishAfterCommit("AUCTION_COMPLETED", getAuctionStateResponse(auction));
+                }
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("dryRun", dryRun);
+                response.put("allocations", allocationResults);
+                response.put("chainBreakerHarshitPrice", harshitPrice);
+                return response;
+            });
+        }
+    }
+
     public Map<String, Object> getAuctionStateResponse(Auction auction) {
         if (auction == null) auction = getActiveAuction();
 

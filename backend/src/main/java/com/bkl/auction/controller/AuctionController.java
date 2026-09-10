@@ -140,4 +140,17 @@ public class AuctionController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/admin/final-allocation")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> executeFinalAllocation(
+            @RequestParam(defaultValue = "false") boolean dryRun,
+            @AuthenticationPrincipal UserDetailsImpl adminDetails) {
+        try {
+            Map<String, Object> result = auctionService.executeFinalUnsoldAllocation(adminDetails.getUser(), dryRun);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
